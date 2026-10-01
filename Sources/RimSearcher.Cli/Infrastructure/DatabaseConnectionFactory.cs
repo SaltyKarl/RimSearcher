@@ -7,6 +7,13 @@ namespace RimSearcher.Cli.Infrastructure;
 
 internal sealed class DatabaseConnectionFactory
 {
+    // 每次发布显式维护闭区间；区间内所有已发布导出版本都必须兼容。
+    private const int MinDatabaseVersion = 30105; // 3.1.5
+    private const int MaxDatabaseVersion = 30105; // 3.1.5
+
+    internal static string SupportedVersions =>
+        $"{DecodeVersion(MinDatabaseVersion)} through {DecodeVersion(MaxDatabaseVersion)} (inclusive)";
+
     private readonly string _databasePath;
 
     public DatabaseConnectionFactory(string databasePath)
@@ -25,43 +32,30 @@ internal sealed class DatabaseConnectionFactory
         var connection = new SqliteConnection($"Data Source={_databasePath};Mode=ReadOnly");
         connection.Open();
 
-        // 版本认证：CLI 与 DataMod 捆绑发布，只接受同版本导出的库（严格相等）。
-        var cliVersion = EncodeVersion(Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 0, 0));
-        if (cliVersion == 0)
-        {
-            Console.Error.WriteLine("Error: CLI assembly version missing — version marker 0 matches any unversioned database");
-            Environment.Exit(ExitCodes.Error);
-        }
         int dbVersion;
         using (var command = connection.CreateCommand())
         {
             command.CommandText = "PRAGMA user_version";
             dbVersion = Convert.ToInt32(command.ExecuteScalar());
         }
-        if (dbVersion != cliVersion)
+        if (dbVersion < MinDatabaseVersion || dbVersion > MaxDatabaseVersion)
         {
+            var cliVersion = Assembly.GetExecutingAssembly().GetName().Version!.ToString(3);
             string dbText = dbVersion == 0
                 ? "an unknown version (no version marker)"
                 : $"DataMod {DecodeVersion(dbVersion)}";
+            string nextStep = dbVersion == 0
+                ? "Re-export defs.db with a supported DataMod to record its version."
+                : dbVersion < MinDatabaseVersion
+                    ? "Re-export defs.db with a supported DataMod, or use a CLI that supports this database."
+                    : "Update to a CLI that supports this database.";
             Console.Error.WriteLine(
-                $"Error: defs.db was exported by {dbText}, but this CLI is {DecodeVersion(cliVersion)}. " +
-                "Re-export defs.db with the matching DataMod (CLI and DataMod are version-locked)");
+                $"Error: defs.db was exported by {dbText}, but this CLI is {cliVersion}. " +
+                $"Supported DataMod export versions: {SupportedVersions}. {nextStep}");
             Environment.Exit(ExitCodes.Error);
         }
 
         return connection;
-    }
-
-    /// <summary>
-    /// 版本号编码为 user_version 整数（major*10000+minor*100+patch，patch ≤ 99）；
-    /// 与 DataMod 的 DefExporter.EncodeVersion 算法一致，修改时必须同步两侧。
-    /// </summary>
-    private static int EncodeVersion(Version version)
-    {
-        // patch > 99 时编码与下一 minor 碰撞（3.1.100 → 30200 == 3.2.0），抛异常由 CliExceptionFilter 兜底。
-        if (version.Build > 99)
-            throw new InvalidOperationException($"Version patch {version.Build} exceeds 99 — encoding collides with the next minor (major*10000+minor*100+build)");
-        return version.Major * 10000 + version.Minor * 100 + version.Build;
     }
 
     private static string DecodeVersion(int encoded) =>

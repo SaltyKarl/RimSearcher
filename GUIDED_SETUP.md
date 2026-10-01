@@ -48,7 +48,7 @@ Ask for the actual RimWorld installation path if it cannot be discovered. Steam 
 
 Follow the installed Skill's `references/setup.md` for DataMod extraction, in-game enablement, and export. Confirm the exact game directory and replacement action before writing to `Mods/`. Use the bundled `assets/RimSearcher_DataMod.zip`; keep the archive's top-level mod folder intact.
 
-Guide the user to load the intended mod environment and export its Def database. Place the resulting `defs.db` in `<project>/.rimsearcher/`, beside the copied EXE. CLI, DataMod, and database versions must match. Retain the previous database until a new export succeeds.
+Guide the user to load the intended mod environment and export its Def database. Place the resulting `defs.db` in `<project>/.rimsearcher/`, beside the copied EXE. The export version must fall within the project CLI's supported range, shown by `--help`; CLI and database versions need not be equal. A CLI-only upgrade does not require re-exporting a supported snapshot. Retain the previous database until a new export succeeds.
 
 ### Step 4: Configure DecompilerServer
 

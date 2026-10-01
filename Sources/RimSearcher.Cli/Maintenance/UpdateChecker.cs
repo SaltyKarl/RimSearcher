@@ -63,6 +63,6 @@ internal static class UpdateChecker
 
         Console.WriteLine($"Update available: {currentVersion} -> {latestVersion}");
         Console.WriteLine($"Download: {ReleasePageUrl}/{tag}");
-        Console.WriteLine("Update both rimsearcher.exe and RimSearcher_DataMod.zip, then re-export defs.db.");
+        Console.WriteLine("Check the new CLI's supported DataMod export versions; update DataMod and re-export only if the database is unsupported or a fresh snapshot is needed.");
     }
 }

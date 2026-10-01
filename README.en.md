@@ -116,9 +116,9 @@ The CLI reads the database beside its executable, not from the current working d
 | **Global Skill / native plugin** | Use the client's plugin update feature. Plugin and marketplace entry versions identify updates. |
 | **npx skills installation** | Repeat the installation command above, retaining `#master`. |
 | **Manual Skill** | Download a newer Release's `skills.zip` and replace the complete `rimsearcher/` folder. |
-| **Project CLI / DataMod / database** | Copy the matching CLI from the updated Skill, update DataMod, and re-export the database. Retain the previous database until the new export succeeds. |
+| **Project CLI / DataMod / database** | Copy the newer CLI after approval. Keep the existing DataMod and snapshot if the database remains supported. For an older unsupported database or a fresh snapshot, export with a supported DataMod; retain the old database until successful. |
 
-Updating the global Skill does not overwrite tools or data in the project's `.rimsearcher/`. CLI, DataMod, and database versions must match. The badge shows the latest repository change to the Skill or plugin manifests; Release attachments retain their published contents.
+Updating the global Skill does not overwrite tools or data in the project's `.rimsearcher/`. The database records the DataMod version that exported it; the CLI accepts only its declared inclusive range. Use the project CLI's `--help` to inspect that range. A database above the upper limit needs a CLI that supports it; do not bypass the check or rewrite its version marker. The badge shows the latest repository change to the Skill or plugin manifests; Release attachments retain their published contents.
 
 ## Components
 
@@ -169,7 +169,7 @@ Different questions demand different paths: a quick lookup, or a full end-to-end
 
 ### DataMod — in-game export
 
-RimSearcher.DataMod is an in-game mod that exports all Def data of the current mod environment to a SQLite database for the CLI to query; the database is version-locked to the CLI, so re-export after updating either side.
+RimSearcher.DataMod exports the current mod environment's Def data to SQLite. The CLI reads databases within its explicitly declared export-version range. Upgrading only the CLI does not require re-exporting a supported database. Format compatibility does not mean the snapshot still reflects the current mod environment.
 
 
 ## Building
@@ -196,6 +196,21 @@ The script uses the installed SDK and restores dependencies within the project v
 The mod ZIP contains the top-level `RimSearcher_DataMod/` folder, ready to extract into the game's `Mods/`. The script refreshes the root mod's generated `Assemblies/` and `Native/` directories without changing root-level exported databases or metadata. Mod packaging excludes databases, PDBs, and game DLLs. All three distribution artifacts are prepared before updating their target files; an update failure rolls back files already replaced. If rollback fails, backups are retained and the build reports an error. The script does not replace Skill text, update the historical root `skills.zip`, overwrite user projects, commit, or publish.
 
 The initial plugin version is `1.0.0`, independent of CLI/database versions. When publishing Skill text or bundled resource updates, manually keep the plugin versions in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` in sync, then build and upload `.release/skills.zip`.
+
+#### Database Compatibility Range
+
+Each CLI release explicitly maintains `MinDatabaseVersion` and `MaxDatabaseVersion` in `DatabaseConnectionFactory.cs`, both inclusive. The existing encoding remains `major * 10000 + minor * 100 + patch`. The current release remains 3.1.5, supporting 3.1.5–3.1.5.
+
+When the database contract is unchanged, retain the lower limit and explicitly declare the confirmed upper limit. Raise the lower limit when queries require tables, fields, or export semantics missing from older databases. Every published export version in the interval must be compatible; future versions are not accepted automatically. A compatible 3.2.0 release can explicitly declare 3.1.5–3.2.0. The build still requires matching CLI, DataMod, and `About.xml` release versions; users do not need to upgrade a supported older DataMod or re-export its database solely for version alignment.
+
+The CLI does not migrate databases or rewrite export-version markers. Databases outside the range or without a marker are rejected with appropriate upgrade or re-export guidance.
+
+The minimal boundary check uses Python's standard library and temporary snapshots, never user databases:
+
+```text
+python scripts/check-database-compatibility.py skills/rimsearcher/bin/rimsearcher.exe 3.1.5 3.1.5
+```
+
 
 ### Compile
 

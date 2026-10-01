@@ -15,7 +15,7 @@ Paths below are relative to this Skill's installation directory:
 
 - `bin/rimsearcher.exe`: Windows x64 CLI; requires .NET 10 Runtime.
 - `assets/RimSearcher_DataMod.zip`: complete DataMod archive, including managed dependencies, native SQLite libraries, metadata, and translations.
-- For manual installation, runtime prerequisites, or database export, read [references/setup.md](references/setup.md).
+- For manual installation, runtime prerequisites, database export, or tool/database compatibility during an upgrade, read [references/setup.md](references/setup.md).
 
 ## CLI Commands
 

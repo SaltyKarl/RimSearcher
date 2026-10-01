@@ -22,9 +22,9 @@ Open **Options > Mod Settings > RimSearcherDataMod** and export the Def database
 
 Place the exported file at `<project>/.rimsearcher/defs.db`, beside the copied executable. The CLI resolves the database from its executable directory, not the shell's working directory.
 
-Run the copied executable with `--version`, then `types`. A successful `types` query reports the Def types in the exported snapshot. A version mismatch requires matching CLI and DataMod versions and a fresh export; retain the previous database until the new export succeeds.
+Run the copied executable with `--version`, then `types`. A successful `types` query reports the Def types in the exported snapshot. Use the project CLI's `--help` for its inclusive range of supported DataMod export versions. An older supported database remains usable after a CLI-only upgrade; no re-export or DataMod replacement is required solely for version alignment. An export below the range or without a version marker needs a supported DataMod export; an export above the range needs a CLI that supports it. Retain the previous database until any new export succeeds.
 
-The bundled CLI and DataMod come from the same version. Do not place user databases or machine-specific paths inside the global Skill installation. A Def database is a snapshot of the exported mod environment, not a live view of project files.
+The bundled CLI and DataMod share a release version, but an installed older DataMod may remain in use when its exports are supported. The CLI reads snapshots without rewriting their export-version markers or migrating data. Do not place user databases or machine-specific paths inside the global Skill installation. A Def database is a snapshot of the exported mod environment, not a live view of project files; format compatibility does not establish snapshot freshness.
 
 ## DecompilerServer
 

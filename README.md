@@ -116,9 +116,9 @@ CLI 从 EXE 所在目录读取数据库，不从当前工作目录读取。更�
 | **全局 Skill / 原生插件** | 使用对应客户端的插件更新功能；插件和市场条目版本用于发现更新。 |
 | **npx skills 安装** | 重新执行上述带 `#master` 的安装命令。 |
 | **手动 Skill** | 下载新版 Release 的 `skills.zip`，替换完整 `rimsearcher/`。 |
-| **项目 CLI / DataMod / 数据库** | 从新版 Skill 复制配套 CLI，更新 DataMod 并重新导出数据库；保留旧数据库直到新导出成功。 |
+| **项目 CLI / DataMod / 数据库** | 经确认后复制新版 CLI；旧数据库在其支持范围内时，可保留 DataMod 和数据库。数据库过旧或需要新快照时，使用受支持的 DataMod 重新导出，保留旧库直到成功。 |
 
-更新全局 Skill 不会自动覆盖项目 `.rimsearcher/` 的工具或数据。CLI、DataMod 与数据库版本必须一致。页面顶部徽章显示仓库 Skill 或插件清单的最近更新时间；Release 附件保留对应发布时的内容。
+更新全局 Skill 不会自动覆盖项目 `.rimsearcher/` 的工具或数据。数据库记录实际导出它的 DataMod 版本，CLI 只接受自己声明的闭区间；查看项目 CLI 的 `--help` 获取支持范围。数据库高于上限时需要支持它的新版 CLI，不能绕过检查或改写版本标记。页面顶部徽章显示仓库 Skill 或插件清单的最近更新时间；Release 附件保留对应发布时的内容。
 
 ## 组件
 
@@ -171,7 +171,7 @@ Skill 是工具链的灵魂所在——它教 AI 如何分析，而不只是能�
 ### DataMod — 游戏内导出
 
 RimSearcher.DataMod 是一个游戏内模组：将当前模组环境的全部 Def 数据导出为 SQLite 数据库供 CLI 查询，
-库与 CLI 版本锁定，升级任一方后必须重新导出。
+CLI 按明确声明的导出版本范围读取数据库；仅升级 CLI 且旧库仍受支持时，无需重新导出。格式兼容不代表快照仍反映当前模组环境。
 
 ## 构建
 
@@ -197,6 +197,21 @@ pwsh -File scripts/build-skill.ps1
 模组 ZIP 自带顶层 `RimSearcher_DataMod/`，可解压到游戏 `Mods/`。脚本刷新根目录模组的生成目录 `Assemblies/`、`Native/`，不改根目录导出的数据库或元数据；模组打包范围排除数据库、PDB、游戏 DLL。三个分发产物都准备好后才更新目标文件；更新失败时回退已替换的文件，回退失败则保留备份并报错。不替换 Skill 文案，不更新根目录历史 `skills.zip`，不覆盖用户项目，不自动提交或发布。
 
 插件初始版本为 `1.0.0`，独立于 CLI/数据库版本。发布 Skill 文案或随包资源更新时，手动同步 `.claude-plugin/plugin.json` 与 `.claude-plugin/marketplace.json` 中的插件版本，再构建并上传 `.release/skills.zip`。
+
+#### 数据库兼容范围
+
+每个 CLI 发布版在 `DatabaseConnectionFactory.cs` 中显式维护 `MinDatabaseVersion`、`MaxDatabaseVersion`，两端包含。沿用 `major * 10000 + minor * 100 + patch` 编码；当前发布号仍为 3.1.5，支持范围为 3.1.5–3.1.5。
+
+发布时，数据库契约未变则保留下限，并明确声明已确认支持的上限；依赖旧库缺失的表、字段或导出语义时提高下限。范围必须覆盖区间内所有已发布导出版本，不自动接受未来版本。下一版 3.2.0 若兼容，可显式改为 3.1.5–3.2.0。构建时 CLI、DataMod 与 `About.xml` 同版本的约束暂保留；这不要求用户升级受支持的旧 DataMod 或重新导出旧库。
+
+CLI 不迁移数据库、不改写导出版本标记。范围外和无版本标记的数据库会被拒绝，并给出对应更新或重导建议。
+
+最小兼容边界检查使用 Python 标准库，在临时目录创建小型快照，不接触用户数据库：
+
+```text
+python scripts/check-database-compatibility.py skills/rimsearcher/bin/rimsearcher.exe 3.1.5 3.1.5
+```
+
 
 ### 编译
 

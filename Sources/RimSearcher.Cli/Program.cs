@@ -33,7 +33,7 @@ string[] knownCommands = ["search", "list", "get", "find", "fields", "values", "
 // 总帮助保留命令导航；参数和查询语义由框架从命令方法的文档注释生成。
 if (args.Length == 0 || (args.Length == 1 && (args[0] == "-h" || args[0] == "--help")))
 {
-    Console.WriteLine("""
+    Console.WriteLine($"""
         RimSearcher queries runtime Def snapshots exported by DataMod.
         Usage: rimsearcher <command> [arguments] [options]
 
@@ -52,7 +52,8 @@ if (args.Length == 0 || (args.Length == 1 && (args[0] == "-h" || args[0] == "--h
         Example: rimsearcher search --help
         Version: rimsearcher --version
         Database: defs.db beside the executable, not in the shell's working directory.
-        CLI and DataMod database versions must match; re-export after a tool upgrade.
+        Supported DataMod export versions: {DatabaseConnectionFactory.SupportedVersions}.
+        A CLI upgrade alone does not require a new export if the database is supported.
         Exit codes: 0 success; 1 error; 2 not found or needs disambiguation.
         An empty list page returns exit 0. Help needs no database, MCP, or network.
         """);

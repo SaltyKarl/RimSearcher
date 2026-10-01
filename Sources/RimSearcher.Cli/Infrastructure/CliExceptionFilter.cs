@@ -50,7 +50,7 @@ internal sealed class CliExceptionFilter(ConsoleAppFilter next) : ConsoleAppFilt
             // "no such table" 是 SQLite 稳定文案，据此区分缺表（重导指引）与 FTS 语法错误。
             case SqliteError when exception.Message.Contains("no such table", StringComparison.Ordinal):
                 Console.Error.WriteLine(
-                    $"Database error: {exception.Message} Re-export defs.db with the current DataMod (CLI and DataMod are version-locked)");
+                    $"Database error: {exception.Message} Re-export defs.db with a supported DataMod; see rimsearcher --help for supported export versions");
                 break;
             case SqliteError:
                 Console.Error.WriteLine($"FTS query syntax error: {exception.Message}");

@@ -212,7 +212,7 @@ public static class DefExporter
 
     /// <summary>
     /// 版本号编码为 user_version 整数（major*10000+minor*100+patch，patch ≤ 99）；
-    /// 与 CLI 的 DatabaseConnectionFactory.EncodeVersion 算法一致，修改时必须同步两侧。
+    /// CLI 按此编码声明支持范围并解码导出版本；修改编码时必须同步两侧。
     /// </summary>
     private static int EncodeVersion(Version version)
     {
