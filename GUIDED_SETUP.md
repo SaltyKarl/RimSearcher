@@ -14,78 +14,56 @@ Determine where to place Skill files and how to configure MCP based on your runt
 
 ## Goals
 
-1. Download RimSearcher components
-2. Download and configure DecompilerServer MCP
-3. Install DataMod into RimWorld
-4. Configure rimsearcher CLI
-5. Place Skill files
-6. Guide the user through in-game data export
-7. Verify the full pipeline
+1. Install the complete RimSearcher Skill using one supported channel
+2. Prepare the project's `.rimsearcher/` CLI directory
+3. Install DataMod and export the current mod environment
+4. Configure DecompilerServer MCP for C# source analysis
+5. Confirm the project CLI can read the exported database
 
 ## Steps
 
-### Step 1: Ask for RimWorld Installation Path
+### Step 1: Select an Installation Channel
 
-```
-Where is RimWorld installed?
-(Steam: right-click RimWorld in Library → Manage → Browse local files)
-```
+Use the client's native channel when available. Installation commands and all five choices are maintained in the [README](https://github.com/kearril/RimSearcher#快速开始):
 
-You need this path to install the DataMod.
+- Claude Code native plugin
+- Codex native plugin
+- omp native plugin
+- `npx skills` universal installer
+- Manual `skills.zip` attachment from [Releases](https://github.com/kearril/RimSearcher/releases)
 
-### Step 2: Download Files
+Install one channel only. Confirm installation scope with the user before changing client settings. For manual installation, place the complete top-level `rimsearcher/` folder in the client's Skill directory, including `bin/`, `assets/`, and `references/`. Use the Release attachment, not `Source code (zip)` or the historical repository-root archive. Older Releases may not include the attachment.
 
-**RimSearcher CLI & DataMod:** Download from `https://github.com/kearril/RimSearcher/releases/latest`:
-- `rimsearcher.exe`
-- `RimSearcher_DataMod.zip`
+Locate the installed Skill directory before continuing. Its [bundled setup reference](skills/rimsearcher/references/setup.md) is the authoritative environment preparation guide.
 
-Create a directory and place `rimsearcher.exe` inside.
+### Step 2: Prepare Project CLI
 
-**Skills:** Download from `https://raw.githubusercontent.com/kearril/RimSearcher/master/skills.zip` — skills are **not published with Releases**; this link always points to the latest version. Extract `skills/rimsearcher/` for later use.
+Use Windows x64 with .NET 10 Runtime for the bundled CLI. Determine the user's project directory and copy the installed Skill's `bin/rimsearcher.exe` into `<project>/.rimsearcher/`. Invoke that executable by explicit path; no PATH change is needed.
 
-**DecompilerServer:** Visit `https://github.com/pardeike/DecompilerServer` and follow the repository's installation instructions to set up the MCP server.
+Preserve any existing project CLI and database until the user authorizes a coordinated update. Updating a global Skill does not automatically replace project files.
 
-### Step 3: Install DataMod
+### Step 3: Install DataMod and Export Data
 
-Extract `RimSearcher_DataMod.zip` into RimWorld's `Mods/` folder.
-Tell the user to enable **RimSearcherDataMod** in the in-game Mod list.
+Ask for the actual RimWorld installation path if it cannot be discovered. Steam users can open Library > RimWorld > Manage > Browse local files.
 
-### Step 4: Configure CLI
+Follow the installed Skill's `references/setup.md` for DataMod extraction, in-game enablement, and export. Confirm the exact game directory and replacement action before writing to `Mods/`. Use the bundled `assets/RimSearcher_DataMod.zip`; keep the archive's top-level mod folder intact.
 
-Guide the user through adding the directory containing `rimsearcher.exe` to the system PATH. You are the assistant they are asking — walk them through it yourself:
+Guide the user to load the intended mod environment and export its Def database. Place the resulting `defs.db` in `<project>/.rimsearcher/`, beside the copied EXE. CLI, DataMod, and database versions must match. Retain the previous database until a new export succeeds.
 
-- Windows: Settings → System → About → Advanced system settings → Environment Variables → user variable `Path` → Edit → New → paste the exe directory
-- If you have terminal/registry access, you may perform the change directly (e.g. `reg add "HKCU\Environment" /v Path /t REG_EXPAND_SZ /d "<new value>" /f` — keep the REG_EXPAND_SZ type so `%VAR%` entries keep expanding)
+### Step 4: Configure DecompilerServer
 
-Once configured, verify by opening a **new** terminal (PATH changes do not apply to already-open terminals) and running:
+For C# source analysis, follow the external [DecompilerServer](https://github.com/pardeike/DecompilerServer) installation instructions for the user's client. Load the actual game and relevant mod assemblies, and confirm the loaded context. Def-only queries do not need this MCP.
 
-```bash
-rimsearcher --version
-```
+### Step 5: Confirm Readiness
 
-It should print the current version number. Remind the user that if they move `rimsearcher.exe` afterwards, the PATH must be reconfigured.
+From the project directory, run:
 
-### Step 5: Place Skill Files
-
-Place `skills/rimsearcher/` into your runtime's skills directory. Refer to the
-[Agent Skills specification](https://agentskills.io/specification) if unsure.
-Restart the AI client to activate.
-
-### Step 6: Guide Data Export
-
-Guide the user through the in-game steps:
-
-1. Open Options → Mod Settings → RimSearcherDataMod
-2. Click "Export Def database"
-3. Copy the generated `defs.db` to the same directory as `rimsearcher.exe`
-
-### Step 7: Verify
-
-```bash
-rimsearcher types
+```powershell
+.\.rimsearcher\rimsearcher.exe --version
+.\.rimsearcher\rimsearcher.exe types
 ```
 
-Should output a list of Def types. Then use the DecompilerServer MCP to load the game assembly and verify it can read source code.
+A successful `types` query reports the Def types in the exported snapshot. If C# analysis is requested, confirm DecompilerServer can read a known type from the loaded game assembly.
 
 ### Done
 

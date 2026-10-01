@@ -1,6 +1,6 @@
 # RimSearcher
 
-[![Skills Update Time](https://img.shields.io/endpoint?url=https%3A%2F%2Fkearril.github.io%2FRimSearcher%2Fskills-update.json&cacheSeconds=300)](https://github.com/kearril/RimSearcher/commits/master/skills.zip)
+[![Skills Update Time](https://img.shields.io/endpoint?url=https%3A%2F%2Fkearril.github.io%2FRimSearcher%2Fskills-update.json&cacheSeconds=300)](https://github.com/kearril/RimSearcher/commits/master/skills/rimsearcher)
 
 [English](README.en.md) | 简体中文
 
@@ -45,65 +45,80 @@ Skill 文件将两者串联成一条分析管线：CLI 定位 Def → 提取 C# 
 
 ---
 
-### 手动安装
+### 1. 安装 Skill：五种方式任选一种
 
-如果你已经熟悉工具链，可以按以下步骤自行配置。
+所有渠道使用同一份 `rimsearcher` Skill，包含 Windows x64 CLI、完整 DataMod ZIP、安装参考和许可证。CLI 需要 [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)；C# 源码分析还需要外部 [DecompilerServer](https://github.com/pardeike/DecompilerServer) MCP。
 
-### 1. 下载
+#### Claude Code 原生插件
 
-从 [Releases](https://github.com/kearril/RimSearcher/releases/latest) 下载：
-
-| 文件 | 说明                                                                                                                                                                                                                                                          |
-|---|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `rimsearcher.exe` | CLI 命令行工具                                                                                                                                                                                                                                                |
-| `RimSearcher_DataMod.zip` | 游戏内 Def 数据导出模组                                                                                                                                                                                                                                         |
-
-> **skills 不随 Release 发布**：始终通过下方「配置 AI 技能」步骤从仓库直接获取最新版。
-
-还需要反编译 MCP：[DecompilerServer](https://github.com/pardeike/DecompilerServer) — 前往官网下载并配置该 MCP 工具。
-
-### 2. 安装模组
-
-解压 `RimSearcher_DataMod.zip` 到 RimWorld 的 `Mods/` 目录。启动游戏，在 Mod 列表中启用 **RimSearcherDataMod**。
-
-### 3. 导出数据
-
-进入游戏 → 选项 → Mod 设置 → RimSearcherDataMod → 点击`导出 Def 数据库`。
-
-导出完成后，将生成的 `defs.db` 放到 `rimsearcher.exe` 同目录下。
-
-### 4. 配置 CLI
-
-将 `rimsearcher.exe` 所在目录加入系统 PATH。若不清楚如何操作，请教你的 AI 助手。
-
-配置成功后，在任意终端执行：
-
-```bash
-rimsearcher --version
+```text
+claude plugin marketplace add kearril/RimSearcher
+claude plugin install rimsearcher@rimsearcher-marketplace
 ```
 
-应显示当前版本号。
+安装后可使用 `/rimsearcher:rimsearcher`。
 
-配置完成后，若移动 `rimsearcher.exe`，需重新配置 PATH。
+#### Codex 原生插件
 
-### 5. 配置 AI 技能
+```text
+codex plugin marketplace add kearril/RimSearcher
+codex plugin add rimsearcher@rimsearcher-marketplace
+```
 
-下载并解压 [skills.zip](https://raw.githubusercontent.com/kearril/RimSearcher/master/skills.zip)（该链接始终指向仓库最新版），将 `skills/rimsearcher/` 放入你使用的 AI 助手的 skills 目录。
-### 6. 完成
-重启 AI 客户端后，可以开始进行测试和使用了
+#### omp 原生插件
+
+```text
+omp plugin marketplace add kearril/RimSearcher
+omp plugin install rimsearcher@rimsearcher-marketplace
+```
+
+三个原生渠道共用 `.claude-plugin/` 的插件和市场清单。请使用支持这些插件命令的客户端版本；这里不包含 ChatGPT 或 Claude 网页聊天端。
+
+#### npx skills 通用安装
+
+```text
+npx skills add "https://github.com/kearril/RimSearcher#master" --skill rimsearcher --global
+```
+
+按安装器提示选择客户端。省略 `--global` 可安装到当前项目。保留 `#master`，让安装器通过 Git 克隆携带 EXE、ZIP，而不是使用文字快照；omp 请使用上面的原生渠道。
+
+#### Release 手动下载
+
+从 [Releases](https://github.com/kearril/RimSearcher/releases) 下载附件 **`skills.zip`**，解压后将完整 `rimsearcher/` 放入客户端的 Skill 目录。不要只复制 `SKILL.md`，也不要下载 GitHub 自动生成的 `Source code (zip)` 代替附件。历史 Release 可能没有此附件。
+
+压缩包顶层是 `rimsearcher/`，其中的 `bin/rimsearcher.exe` 和 `assets/RimSearcher_DataMod.zip` 与原生安装内容相同。
+
+### 2. 准备项目与游戏环境
+
+以下路径相对于已安装的 `rimsearcher` Skill：
+
+1. 将 `bin/rimsearcher.exe` 复制到项目的 `.rimsearcher/`，使用显式路径调用，无需修改 PATH。
+2. 解压 `assets/RimSearcher_DataMod.zip` 到 RimWorld 的 `Mods/`。它自带顶层 `RimSearcher_DataMod/`；替换已有模组前保留旧安装并确认目标。
+3. 启动游戏，启用 **RimSearcherDataMod**，加载需要分析的模组环境。
+4. 打开 **选项 > Mod 设置 > RimSearcherDataMod**，导出 Def 数据库，将生成的 `defs.db` 放到项目 `.rimsearcher/`，与 EXE 同目录。
+5. 按 DecompilerServer 文档配置 MCP，加载实际游戏和相关模组程序集。仅查询 Def 数据时不需要它。
+
+在项目目录运行：
+
+```powershell
+.\.rimsearcher\rimsearcher.exe --version
+.\.rimsearcher\rimsearcher.exe types
+```
+
+CLI 从 EXE 所在目录读取数据库，不从当前工作目录读取。更多环境准备说明见 [随包安装参考](skills/rimsearcher/references/setup.md)；全局 Skill 中不存放用户数据库。
 
 ---
 
 ## 更新说明
 
-| 组件 | 更新方式                                                                                                                                       |
-|---|------------------------------------------------------------------------------------------------------------------------------------------------|
-| **rimsearcher CLI** | 从[Releases](https://github.com/kearril/RimSearcher/releases/latest) 下载新版 `rimsearcher.exe` 替换原文件，并同步更新 DataMod、重新导出数据库 |
-| **rimsearcher Skill** | [下载 skills.zip](https://raw.githubusercontent.com/kearril/RimSearcher/master/skills.zip)，解压后覆盖 skills 目录。                           |
-| **RimSearcher.DataMod** | 从 [Releases](https://github.com/kearril/RimSearcher/releases/latest) 下载新版 `RimSearcher_DataMod.zip`，解压替换原来的模组，并重新导出数据库 |
+| 组件 | 更新方式 |
+|---|---|
+| **全局 Skill / 原生插件** | 使用对应客户端的插件更新功能；插件和市场条目版本用于发现更新。 |
+| **npx skills 安装** | 重新执行上述带 `#master` 的安装命令。 |
+| **手动 Skill** | 下载新版 Release 的 `skills.zip`，替换完整 `rimsearcher/`。 |
+| **项目 CLI / DataMod / 数据库** | 从新版 Skill 复制配套 CLI，更新 DataMod 并重新导出数据库；保留旧数据库直到新导出成功。 |
 
-> 由于 skills 文件是影响 AI 决策的重要文件，可能频繁更新优化，
-> 因此 skills 不跟随 Release 发布。如何判断 skills 是否有更新？看这个徽章或者页面顶部的 ![Skills Update Time](https://img.shields.io/endpoint?url=https%3A%2F%2Fkearril.github.io%2FRimSearcher%2Fskills-update.json) 徽章；它显示 `skills.zip` 最后一次更新的 UTC+8 时间。显示的时间比本地文件新就说明有更新。
+更新全局 Skill 不会自动覆盖项目 `.rimsearcher/` 的工具或数据。CLI、DataMod 与数据库版本必须一致。页面顶部徽章显示仓库 Skill 或插件清单的最近更新时间；Release 附件保留对应发布时的内容。
 
 ## 组件
 
@@ -173,19 +188,22 @@ RimSearcher.DataMod 是一个游戏内模组：将当前模组环境的全部 De
 pwsh -File scripts/build-skill.ps1
 ```
 
-脚本使用已安装的 SDK，按项目版本约束恢复依赖；不固定 SDK，不生成 NuGet 锁文件。它构建配套 CLI 与 DataMod，从根目录 `RimSearcher_DataMod/` 打包模组，检查版本、CLI 启动和必要依赖后，只更新：
+脚本使用已安装的 SDK，按项目版本约束恢复依赖；不固定 SDK，不生成 NuGet 锁文件。它构建配套 CLI 与 DataMod，从根目录 `RimSearcher_DataMod/` 打包模组，沿用版本、CLI 启动和必要依赖检查，更新：
 
 - `skills/rimsearcher/bin/rimsearcher.exe`
 - `skills/rimsearcher/assets/RimSearcher_DataMod.zip`
+- `.release/skills.zip`：完整 Skill，顶层为 `rimsearcher/`，发布时作为 Release 附件上传。
 
-ZIP 自带顶层 `RimSearcher_DataMod/`，可解压到游戏 `Mods/`。脚本刷新根目录模组的生成目录 `Assemblies/`、`Native/`，不改根目录导出的数据库或元数据；打包范围排除数据库、PDB、游戏 DLL。CLI 与 ZIP 都准备好后才更新目标文件；更新失败时回退已替换的文件，回退失败则保留备份并报错。不复制或替换整个 Skill，不更新根目录 `skills.zip`，不覆盖用户项目，不自动提交或发布。
+模组 ZIP 自带顶层 `RimSearcher_DataMod/`，可解压到游戏 `Mods/`。脚本刷新根目录模组的生成目录 `Assemblies/`、`Native/`，不改根目录导出的数据库或元数据；模组打包范围排除数据库、PDB、游戏 DLL。三个分发产物都准备好后才更新目标文件；更新失败时回退已替换的文件，回退失败则保留备份并报错。不替换 Skill 文案，不更新根目录历史 `skills.zip`，不覆盖用户项目，不自动提交或发布。
+
+插件初始版本为 `1.0.0`，独立于 CLI/数据库版本。发布 Skill 文案或随包资源更新时，手动同步 `.claude-plugin/plugin.json` 与 `.claude-plugin/marketplace.json` 中的插件版本，再构建并上传 `.release/skills.zip`。
 
 ### 编译
 
 ```bash
 # CLI 工具
-dotnet publish Sources/RimSearcher.Cli/ -c Release -o Sources/RimSearcher.Cli/publish/
-# 产物: Sources/RimSearcher.Cli/publish/rimsearcher.exe
+dotnet publish Sources/RimSearcher.Cli/ -c Release -o .release/cli/
+# 产物: .release/cli/rimsearcher.exe
 
 # DataMod 模组
 dotnet build Sources/RimSearcher.DataMod/ -c Release

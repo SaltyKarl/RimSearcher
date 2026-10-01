@@ -1,0 +1,12 @@
+{
+  "name": "rimsearcher-marketplace",
+  "owner": { "name": "kearril" },
+  "plugins": [
+    {
+      "name": "rimsearcher",
+      "source": "./",
+      "version": "1.0.0",
+      "description": "RimWorld Def data and source investigation skill"
+    }
+  ]
+}

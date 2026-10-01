@@ -1,6 +1,6 @@
 # RimSearcher
 
-[![Skills Update Time](https://img.shields.io/endpoint?url=https%3A%2F%2Fkearril.github.io%2FRimSearcher%2Fskills-update.json&cacheSeconds=300)](https://github.com/kearril/RimSearcher/commits/master/skills.zip)
+[![Skills Update Time](https://img.shields.io/endpoint?url=https%3A%2F%2Fkearril.github.io%2FRimSearcher%2Fskills-update.json&cacheSeconds=300)](https://github.com/kearril/RimSearcher/commits/master/skills/rimsearcher)
 
 English | [简体中文](README.md)
 
@@ -45,54 +45,67 @@ We believe: the tool's errors should become the model's experience, not its cost
 
 ---
 
-### Manual Installation
+### 1. Install the Skill: Choose One of Five Channels
 
-If you're already familiar with the toolchain, follow these steps to configure it yourself.
+Every channel distributes the same `rimsearcher` Skill, including the Windows x64 CLI, complete DataMod ZIP, setup reference, and license. The CLI requires [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0). C# source analysis also requires the external [DecompilerServer](https://github.com/pardeike/DecompilerServer) MCP.
 
-### 1. Download
+#### Claude Code Native Plugin
 
-Download from [Releases](https://github.com/kearril/RimSearcher/releases/latest):
-
-| File | Description |
-|---|---|
-| `rimsearcher.exe` | CLI command-line tool |
-| `RimSearcher_DataMod.zip` | In-game Def data export mod |
-
-> **Skills are not published with Releases**: always fetch the latest version directly from the repository via the "Configure AI Skills" step below.
-
-You also need the decompilation MCP: [DecompilerServer](https://github.com/pardeike/DecompilerServer) — visit its repo and configure the MCP tool.
-
-### 2. Install the Mod
-
-Extract `RimSearcher_DataMod.zip` into RimWorld's `Mods/` directory. Launch the game and enable **RimSearcherDataMod** in the mod list.
-
-### 3. Export Data
-
-In-game: Options → Mod Settings → RimSearcherDataMod → click **Export Def database**.
-
-When the export finishes, place the generated `defs.db` in the same directory as `rimsearcher.exe`.
-
-### 4. Configure the CLI
-
-Add the directory containing `rimsearcher.exe` to the system PATH. If you are not sure how, ask your AI assistant for help.
-
-Once configured, run in any terminal:
-
-```bash
-rimsearcher --version
+```text
+claude plugin marketplace add kearril/RimSearcher
+claude plugin install rimsearcher@rimsearcher-marketplace
 ```
 
-It should print the current version number.
+Invoke `/rimsearcher:rimsearcher` after installation.
 
-After configuring, if you move `rimsearcher.exe`, you must reconfigure the PATH.
+#### Codex Native Plugin
 
-### 5. Configure AI Skills
+```text
+codex plugin marketplace add kearril/RimSearcher
+codex plugin add rimsearcher@rimsearcher-marketplace
+```
 
-Download [skills.zip](https://raw.githubusercontent.com/kearril/RimSearcher/master/skills.zip) (this link always points to the latest version in the repository), extract it, and place `skills/rimsearcher/` into your AI assistant's skills directory.
+#### omp Native Plugin
 
-### 6. Done
+```text
+omp plugin marketplace add kearril/RimSearcher
+omp plugin install rimsearcher@rimsearcher-marketplace
+```
 
-Restart and start testing and using the tool.
+All three native channels share the plugin and marketplace manifests in `.claude-plugin/`. Use a client version supporting these plugin commands. This does not include the ChatGPT or Claude web chat interfaces.
+
+#### npx skills Universal Installation
+
+```text
+npx skills add "https://github.com/kearril/RimSearcher#master" --skill rimsearcher --global
+```
+
+Select your client when prompted. Omit `--global` for project installation. Keep `#master` so the installer uses Git cloning for the EXE and ZIP instead of a text snapshot. For omp, use its native channel above.
+
+#### Manual Release Download
+
+Download the **`skills.zip`** attachment from [Releases](https://github.com/kearril/RimSearcher/releases). Extract it and place the complete `rimsearcher/` folder in your client's Skill directory. Do not copy only `SKILL.md` or substitute GitHub's generated `Source code (zip)` archive. Older Releases may not have this attachment.
+
+The archive's top-level folder is `rimsearcher/`. Its `bin/rimsearcher.exe` and `assets/RimSearcher_DataMod.zip` match the native installation contents.
+
+### 2. Prepare the Project and Game Environment
+
+The following paths are relative to the installed `rimsearcher` Skill:
+
+1. Copy `bin/rimsearcher.exe` into the project's `.rimsearcher/` directory. Invoke it by explicit path; no PATH change is needed.
+2. Extract `assets/RimSearcher_DataMod.zip` into RimWorld's `Mods/`. It includes the top-level `RimSearcher_DataMod/` folder. Preserve the previous installation and confirm the target before replacing an existing mod.
+3. Launch the game, enable **RimSearcherDataMod**, and load the mod environment you want to analyze.
+4. Open **Options > Mod Settings > RimSearcherDataMod**, export the Def database, and place the resulting `defs.db` in the project's `.rimsearcher/`, beside the EXE.
+5. Configure the MCP using DecompilerServer's documentation and load the actual game and relevant mod assemblies. Def-only queries do not require it.
+
+Run from the project directory:
+
+```powershell
+.\.rimsearcher\rimsearcher.exe --version
+.\.rimsearcher\rimsearcher.exe types
+```
+
+The CLI reads the database beside its executable, not from the current working directory. See the [bundled setup reference](skills/rimsearcher/references/setup.md) for environment preparation. Keep user databases outside the global Skill.
 
 ---
 
@@ -100,11 +113,12 @@ Restart and start testing and using the tool.
 
 | Component | How to update |
 |---|---|
-| **rimsearcher CLI** | Download the new `rimsearcher.exe` from [Releases](https://github.com/kearril/RimSearcher/releases/latest) and replace the old exe, then update DataMod and re-export the database |
-| **rimsearcher Skill** | Download [skills.zip](https://raw.githubusercontent.com/kearril/RimSearcher/master/skills.zip), extract and overwrite the skills directory |
-| **RimSearcher.DataMod** | Download the new `RimSearcher_DataMod.zip` from [Releases](https://github.com/kearril/RimSearcher/releases/latest), extract and replace the old mod, then re-export the database |
+| **Global Skill / native plugin** | Use the client's plugin update feature. Plugin and marketplace entry versions identify updates. |
+| **npx skills installation** | Repeat the installation command above, retaining `#master`. |
+| **Manual Skill** | Download a newer Release's `skills.zip` and replace the complete `rimsearcher/` folder. |
+| **Project CLI / DataMod / database** | Copy the matching CLI from the updated Skill, update DataMod, and re-export the database. Retain the previous database until the new export succeeds. |
 
-> Skills are important files that shape AI decisions and may be optimized frequently, so skills are not published with Releases. How to tell whether skills have changed? Check the badge at the top of this page ( ![Skills Update Time](https://img.shields.io/endpoint?url=https%3A%2F%2Fkearril.github.io%2FRimSearcher%2Fskills-update.json) ); it shows the last modification time of `skills.zip` in UTC+8. If it's newer than your local files, there's an update.
+Updating the global Skill does not overwrite tools or data in the project's `.rimsearcher/`. CLI, DataMod, and database versions must match. The badge shows the latest repository change to the Skill or plugin manifests; Release attachments retain their published contents.
 
 ## Components
 
@@ -173,19 +187,22 @@ Run on Windows:
 pwsh -File scripts/build-skill.ps1
 ```
 
-The script uses the installed SDK and restores dependencies within the project version constraints; it does not pin the SDK or generate NuGet lock files. It builds matching CLI and DataMod versions, packages the root `RimSearcher_DataMod/` directory, checks versions, CLI startup and required dependencies, then updates only:
+The script uses the installed SDK and restores dependencies within the project version constraints; it does not pin the SDK or generate NuGet lock files. It builds matching CLI and DataMod versions, packages the root `RimSearcher_DataMod/` directory, retains existing version, CLI startup, and dependency checks, and updates:
 
 - `skills/rimsearcher/bin/rimsearcher.exe`
 - `skills/rimsearcher/assets/RimSearcher_DataMod.zip`
+- `.release/skills.zip`: the complete Skill with a top-level `rimsearcher/` folder, ready to upload as a Release attachment.
 
-The ZIP contains the top-level `RimSearcher_DataMod/` folder, ready to extract into the game's `Mods/`. The script refreshes the root mod's generated `Assemblies/` and `Native/` directories without changing root-level exported databases or metadata. Packaging excludes databases, PDBs, and game DLLs. Both artifacts are prepared before updating their target files; an update failure rolls back files already replaced. If rollback fails, backups are retained and the build reports an error. The script does not copy or replace the whole Skill, update the root `skills.zip`, overwrite user projects, commit, or publish.
+The mod ZIP contains the top-level `RimSearcher_DataMod/` folder, ready to extract into the game's `Mods/`. The script refreshes the root mod's generated `Assemblies/` and `Native/` directories without changing root-level exported databases or metadata. Mod packaging excludes databases, PDBs, and game DLLs. All three distribution artifacts are prepared before updating their target files; an update failure rolls back files already replaced. If rollback fails, backups are retained and the build reports an error. The script does not replace Skill text, update the historical root `skills.zip`, overwrite user projects, commit, or publish.
+
+The initial plugin version is `1.0.0`, independent of CLI/database versions. When publishing Skill text or bundled resource updates, manually keep the plugin versions in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` in sync, then build and upload `.release/skills.zip`.
 
 ### Compile
 
 ```bash
 # CLI tool
-dotnet publish Sources/RimSearcher.Cli/ -c Release -o Sources/RimSearcher.Cli/publish/
-# Output: Sources/RimSearcher.Cli/publish/rimsearcher.exe
+dotnet publish Sources/RimSearcher.Cli/ -c Release -o .release/cli/
+# Output: .release/cli/rimsearcher.exe
 
 # DataMod mod
 dotnet build Sources/RimSearcher.DataMod/ -c Release

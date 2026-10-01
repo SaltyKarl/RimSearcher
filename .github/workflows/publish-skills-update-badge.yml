@@ -4,7 +4,8 @@ on:
   push:
     branches: [master]
     paths:
-      - "skills.zip"
+      - "skills/rimsearcher/**"
+      - ".claude-plugin/**"
       - ".github/workflows/publish-skills-update-badge.yml"
   workflow_dispatch:
 
@@ -33,7 +34,7 @@ jobs:
         shell: bash
         run: |
           mkdir public
-          timestamp="$(git log -1 --format=%cI -- skills.zip)"
+          timestamp="$(git log -1 --format=%cI -- skills/rimsearcher .claude-plugin)"
           formatted_timestamp="$(TZ=Asia/Shanghai date --date="$timestamp" '+%Y-%m-%d %H:%M UTC+8')"
           jq -n \
             --arg message "$formatted_timestamp" \

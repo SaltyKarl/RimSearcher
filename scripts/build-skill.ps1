@@ -69,13 +69,29 @@ try {
     }
     finally { $archive.Dispose() }
 
-    # Replace only the two artifacts. Each file replacement preserves its previous version.
+    # Package the full Skill with fresh binaries before replacing any distribution artifact.
+    $skillZip = "$work/skills.zip"
+    $archive = [IO.Compression.ZipFile]::Open($skillZip, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        foreach ($file in Get-ChildItem $skill -Recurse -File) {
+            $relative = [IO.Path]::GetRelativePath($skill, $file.FullName).Replace('\', '/')
+            $source = switch ($relative) {
+                'bin/rimsearcher.exe' { $cli }
+                'assets/RimSearcher_DataMod.zip' { $zip }
+                default { $file.FullName }
+            }
+            [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $source, "rimsearcher/$relative") | Out-Null
+        }
+    }
+    finally { $archive.Dispose() }
+
+    # Each file replacement preserves its previous version.
     New-Item "$skill/bin", "$skill/assets" -ItemType Directory -Force | Out-Null
-    $sources = @($cli, $zip)
-    $targets = @("$skill/bin/rimsearcher.exe", "$skill/assets/RimSearcher_DataMod.zip")
+    $sources = @($cli, $zip, $skillZip)
+    $targets = @("$skill/bin/rimsearcher.exe", "$skill/assets/RimSearcher_DataMod.zip", "$root/.release/skills.zip")
     $updated = @()
     try {
-        foreach ($i in 0..1) {
+        foreach ($i in 0..($targets.Count - 1)) {
             if ([IO.File]::Exists($targets[$i])) {
                 [IO.File]::Replace($sources[$i], $targets[$i], "$work/previous-$i")
             }
@@ -93,6 +109,7 @@ try {
         throw
     }
     Write-Host "Built RimSearcher ${version}: $skill"
+    Write-Host "Release Skill archive: $root/.release/skills.zip"
 }
 finally {
     Pop-Location
