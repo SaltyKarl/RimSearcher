@@ -4,6 +4,10 @@ Publish/
 bin/
 obj/
 
+!/skills/rimsearcher/bin/
+/skills/rimsearcher/bin/*
+!/skills/rimsearcher/bin/rimsearcher.exe
+
 /RimSearcher_DataMod/Assemblies/
 /RimSearcher_DataMod/Native/
 
