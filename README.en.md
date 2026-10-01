@@ -39,17 +39,11 @@ We believe: the tool's errors should become the model's experience, not its cost
 
 ## Quick Start
 
-**Not comfortable installing it yourself?** Send the following line to your AI assistant and it will guide you through the whole installation, step by step:
-
-> Read https://raw.githubusercontent.com/kearril/RimSearcher/master/GUIDED_SETUP.md and guide me through the installation.
-
----
-
-### 1. Install the Skill: Choose One of Five Channels
+### 1. Install the Skill: Choose One of Three Channels
 
 Every channel distributes the same `rimsearcher` Skill, including the Windows x64 CLI, complete DataMod ZIP, setup reference, and license. The CLI requires [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0). C# source analysis also requires the external [DecompilerServer](https://github.com/pardeike/DecompilerServer) MCP.
 
-#### Claude Code Native Plugin
+#### Claude Code Plugin Marketplace
 
 ```text
 claude plugin marketplace add kearril/RimSearcher
@@ -58,35 +52,19 @@ claude plugin install rimsearcher@rimsearcher-marketplace
 
 Invoke `/rimsearcher:rimsearcher` after installation.
 
-#### Codex Native Plugin
+#### npx skills Universal Installation (Recommended)
 
-```text
-codex plugin marketplace add kearril/RimSearcher
-codex plugin add rimsearcher@rimsearcher-marketplace
-```
-
-#### omp Native Plugin
-
-```text
-omp plugin marketplace add kearril/RimSearcher
-omp plugin install rimsearcher@rimsearcher-marketplace
-```
-
-All three native channels share the plugin and marketplace manifests in `.claude-plugin/`. Use a client version supporting these plugin commands. This does not include the ChatGPT or Claude web chat interfaces.
-
-#### npx skills Universal Installation
+Uses the official Agent Skills installer to automatically detect and install to supported Agent clients across your environment (Claude Code, Codex, omp, OpenCode, Pi, Cursor, Windsurf, etc.):
 
 ```text
 npx skills add "https://github.com/kearril/RimSearcher#master" --skill rimsearcher --global
 ```
 
-Select your client when prompted. Omit `--global` for project installation. Keep `#master` so the installer uses Git cloning for the EXE and ZIP instead of a text snapshot. For omp, use its native channel above.
+Select your client when prompted (omit `--global` for project-level installation). Keep `#master` so the installer uses Git cloning to carry the full EXE and ZIP binary assets.
 
-#### Manual Release Download
+#### Manual Release Installation
 
-Download the **`rimsearcher.zip`** attachment from [Releases](https://github.com/kearril/RimSearcher/releases). Extract it and place the complete `rimsearcher/` folder in your client's Skill directory. Do not copy only `SKILL.md` or substitute GitHub's generated `Source code (zip)` archive. Older Releases may not have this attachment.
-
-The archive's top-level folder is `rimsearcher/`. Its `bin/rimsearcher.exe` and `assets/RimSearcher_DataMod.zip` match the native installation contents.
+Download the **`rimsearcher.zip`** archive from [Releases](https://github.com/kearril/RimSearcher/releases). Extract it and place the top-level `rimsearcher/` folder directly into your client's Skill directory (e.g. `~/.claude/skills/`, `~/.omp/skills/`, `~/.codex/skills/`, etc.).
 
 ### 2. Prepare the Project and Game Environment
 
@@ -113,9 +91,9 @@ The CLI reads the database beside its executable, not from the current working d
 
 | Component | How to update |
 |---|---|
-| **Global Skill / native plugin** | Use the client's plugin update feature. Plugin and marketplace entry versions identify updates. |
+| **Claude Code plugin** | Update via client command `claude plugin update`. |
 | **npx skills installation** | Repeat the installation command above, retaining `#master`. |
-| **Manual Skill** | Download a newer Release's `rimsearcher.zip` and replace the complete `rimsearcher/` folder. |
+| **Manual Release** | Download the latest Release's `rimsearcher.zip` and replace the `rimsearcher/` folder. |
 | **Project CLI / DataMod / database** | Copy the newer CLI after approval. Keep the existing DataMod and snapshot if the database remains supported. For an older unsupported database or a fresh snapshot, export with a supported DataMod; retain the old database until successful. |
 
 Updating the global Skill does not overwrite tools or data in the project's `.rimsearcher/`. The database records the DataMod version that exported it; the CLI accepts only its declared inclusive range. Use the project CLI's `--help` to inspect that range. A database above the upper limit needs a CLI that supports it; do not bypass the check or rewrite its version marker. The badge shows the latest repository change to the Skill or plugin manifests; Release attachments retain their published contents.

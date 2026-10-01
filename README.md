@@ -39,17 +39,11 @@ Skill 文件将两者串联成一条分析管线：CLI 定位 Def → 提取 C# 
 
 ## 快速开始
 
-**不会安装？** 将下面这句话发送给你的 AI 助手，它会一步步引导你完成全部安装：
-
-> Read https://raw.githubusercontent.com/kearril/RimSearcher/master/GUIDED_SETUP.md and guide me through the installation.
-
----
-
-### 1. 安装 Skill：五种方式任选一种
+### 1. 安装 Skill：三种方式任选一种
 
 所有渠道使用同一份 `rimsearcher` Skill，包含 Windows x64 CLI、完整 DataMod ZIP、安装参考和许可证。CLI 需要 [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)；C# 源码分析还需要外部 [DecompilerServer](https://github.com/pardeike/DecompilerServer) MCP。
 
-#### Claude Code 原生插件
+#### Claude Code 插件市场
 
 ```text
 claude plugin marketplace add kearril/RimSearcher
@@ -58,35 +52,19 @@ claude plugin install rimsearcher@rimsearcher-marketplace
 
 安装后可使用 `/rimsearcher:rimsearcher`。
 
-#### Codex 原生插件
+#### npx skills 通用安装（推荐）
 
-```text
-codex plugin marketplace add kearril/RimSearcher
-codex plugin add rimsearcher@rimsearcher-marketplace
-```
-
-#### omp 原生插件
-
-```text
-omp plugin marketplace add kearril/RimSearcher
-omp plugin install rimsearcher@rimsearcher-marketplace
-```
-
-三个原生渠道共用 `.claude-plugin/` 的插件和市场清单。请使用支持这些插件命令的客户端版本；这里不包含 ChatGPT 或 Claude 网页聊天端。
-
-#### npx skills 通用安装
+通过 Agent Skills 官方安装器，自动识别并安装至当前系统支持的 Agent 客户端（Claude Code、Codex、omp、OpenCode、Pi、Cursor、Windsurf 等）：
 
 ```text
 npx skills add "https://github.com/kearril/RimSearcher#master" --skill rimsearcher --global
 ```
 
-按安装器提示选择客户端。省略 `--global` 可安装到当前项目。保留 `#master`，让安装器通过 Git 克隆携带 EXE、ZIP，而不是使用文字快照；omp 请使用上面的原生渠道。
+按交互提示选择目标客户端（省略 `--global` 可安装到当前项目）。保留 `#master` 确保通过 Git 克隆携带 EXE 与 ZIP 完整资源。
 
-#### Release 手动下载
+#### Release 手动安装
 
-从 [Releases](https://github.com/kearril/RimSearcher/releases) 下载附件 **`rimsearcher.zip`**，解压后将完整 `rimsearcher/` 放入客户端的 Skill 目录。不要只复制 `SKILL.md`，也不要下载 GitHub 自动生成的 `Source code (zip)` 代替附件。历史 Release 可能没有此附件。
-
-压缩包顶层是 `rimsearcher/`，其中的 `bin/rimsearcher.exe` 和 `assets/RimSearcher_DataMod.zip` 与原生安装内容相同。
+从 [Releases](https://github.com/kearril/RimSearcher/releases) 下载 **`rimsearcher.zip`**，解压后将顶层 `rimsearcher/` 文件夹放入对应 Agent 客户端的技能目录（如 `~/.claude/skills/`、`~/.omp/skills/`、`~/.codex/skills/` 等）。
 
 ### 2. 准备项目与游戏环境
 
@@ -113,9 +91,9 @@ CLI 从 EXE 所在目录读取数据库，不从当前工作目录读取。更�
 
 | 组件 | 更新方式 |
 |---|---|
-| **全局 Skill / 原生插件** | 使用对应客户端的插件更新功能；插件和市场条目版本用于发现更新。 |
+| **Claude Code 插件** | 使用客户端 `claude plugin update` 更新。 |
 | **npx skills 安装** | 重新执行上述带 `#master` 的安装命令。 |
-| **手动 Skill** | 下载新版 Release 的 `rimsearcher.zip`，替换完整 `rimsearcher/`。 |
+| **Release 手动安装** | 下载最新 Release 的 `rimsearcher.zip`，替换 `rimsearcher/` 文件夹。 |
 | **项目 CLI / DataMod / 数据库** | 经确认后复制新版 CLI；旧数据库在其支持范围内时，可保留 DataMod 和数据库。数据库过旧或需要新快照时，使用受支持的 DataMod 重新导出，保留旧库直到成功。 |
 
 更新全局 Skill 不会自动覆盖项目 `.rimsearcher/` 的工具或数据。数据库记录实际导出它的 DataMod 版本，CLI 只接受自己声明的闭区间；查看项目 CLI 的 `--help` 获取支持范围。数据库高于上限时需要支持它的新版 CLI，不能绕过检查或改写版本标记。页面顶部徽章显示仓库 Skill 或插件清单的最近更新时间；Release 附件保留对应发布时的内容。
