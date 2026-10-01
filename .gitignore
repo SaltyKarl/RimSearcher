@@ -25,6 +25,8 @@ Thumbs.db
 /.omp/
 /ARCHITECTURE.md
 /docs/
+/.scratch/
 
 .release/
 /AGENTS.md
+/CONTEXT.md
