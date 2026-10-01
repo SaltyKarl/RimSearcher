@@ -14,7 +14,7 @@ Two tools are your hands: the rimsearcher CLI queries the runtime-merged Def tru
 Paths below are relative to this Skill's installation directory:
 
 - `bin/rimsearcher.exe`: Windows x64 CLI; requires .NET 10 Runtime.
-- `assets/RimSearcher_DataMod/`: complete DataMod, including managed dependencies, native SQLite libraries, metadata, and translations.
+- `assets/RimSearcher_DataMod.zip`: complete DataMod archive, including managed dependencies, native SQLite libraries, metadata, and translations.
 - For manual installation, runtime prerequisites, or database export, read [references/setup.md](references/setup.md).
 
 ## CLI Commands

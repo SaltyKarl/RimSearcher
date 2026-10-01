@@ -163,6 +163,22 @@ RimSearcher.DataMod is an in-game mod that exports all Def data of the current m
 ### Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [PowerShell 7](https://github.com/PowerShell/PowerShell) — required by the complete Skill build script.
+
+### Build the Complete Skill
+
+Run on Windows:
+
+```powershell
+pwsh -File scripts/build-skill.ps1
+```
+
+The script uses the installed SDK and restores dependencies within the project version constraints; it does not pin the SDK or generate NuGet lock files. It builds matching CLI and DataMod versions, packages the root `RimSearcher_DataMod/` directory, checks versions, CLI startup and required dependencies, then updates only:
+
+- `skills/rimsearcher/bin/rimsearcher.exe`
+- `skills/rimsearcher/assets/RimSearcher_DataMod.zip`
+
+The ZIP contains the top-level `RimSearcher_DataMod/` folder, ready to extract into the game's `Mods/`. The script refreshes the root mod's generated `Assemblies/` and `Native/` directories without changing root-level exported databases or metadata. Packaging excludes databases, PDBs, and game DLLs. Both artifacts are prepared before updating their target files; an update failure rolls back files already replaced. If rollback fails, backups are retained and the build reports an error. The script does not copy or replace the whole Skill, update the root `skills.zip`, overwrite user projects, commit, or publish.
 
 ### Compile
 

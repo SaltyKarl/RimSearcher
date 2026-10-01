@@ -163,6 +163,22 @@ RimSearcher.DataMod 是一个游戏内模组：将当前模组环境的全部 De
 ### 环境
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [PowerShell 7](https://github.com/PowerShell/PowerShell) — 完整 Skill 构建脚本的运行环境。
+
+### 构建完整 Skill
+
+在 Windows 上运行：
+
+```powershell
+pwsh -File scripts/build-skill.ps1
+```
+
+脚本使用已安装的 SDK，按项目版本约束恢复依赖；不固定 SDK，不生成 NuGet 锁文件。它构建配套 CLI 与 DataMod，从根目录 `RimSearcher_DataMod/` 打包模组，检查版本、CLI 启动和必要依赖后，只更新：
+
+- `skills/rimsearcher/bin/rimsearcher.exe`
+- `skills/rimsearcher/assets/RimSearcher_DataMod.zip`
+
+ZIP 自带顶层 `RimSearcher_DataMod/`，可解压到游戏 `Mods/`。脚本刷新根目录模组的生成目录 `Assemblies/`、`Native/`，不改根目录导出的数据库或元数据；打包范围排除数据库、PDB、游戏 DLL。CLI 与 ZIP 都准备好后才更新目标文件；更新失败时回退已替换的文件，回退失败则保留备份并报错。不复制或替换整个 Skill，不更新根目录 `skills.zip`，不覆盖用户项目，不自动提交或发布。
 
 ### 编译
 

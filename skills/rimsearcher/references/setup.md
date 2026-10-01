@@ -10,7 +10,7 @@ All paths in this reference are relative to the installed `rimsearcher` Skill di
 
 ## Install DataMod
 
-Copy the complete `assets/RimSearcher_DataMod/` directory into the game's `Mods/` directory. Keep `About/`, `Assemblies/`, `Native/`, and `Languages/` together; the main DataMod DLL alone is insufficient.
+Extract `assets/RimSearcher_DataMod.zip` into the game's `Mods/` directory. The archive contains the top-level `RimSearcher_DataMod/` folder. Keep its `About/`, `Assemblies/`, `Native/`, and `Languages/` together; the main DataMod DLL alone is insufficient.
 
 Confirm with the user before replacing an existing game mod installation. Enable **RimSearcherDataMod** in RimWorld's mod list and load the mod environment whose Def data the project needs.
 
