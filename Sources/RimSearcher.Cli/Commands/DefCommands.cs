@@ -10,112 +10,131 @@ using RimSearcher.Cli.Queries;
 
 namespace RimSearcher.Cli.Commands;
 
-internal static class DefCommands
+internal sealed class DefCommands(DefRepository repository, JsonOutput output)
 {
     public static void Register(ConsoleApp.ConsoleAppBuilder app, DefRepository repository, JsonOutput output)
     {
-        app.Add("get", ([Argument] string defName, string? type = null, bool brief = false, string? field = null) =>
-        {
-            if (TypeGuard.RejectUnknown(type, repository))
-                return;
+        var commands = new DefCommands(repository, output);
+        app.Add("get", commands.Get);
+    }
 
-            // 类型解析/brief/field/full 共用的未命中处理：错误消息,相似名指引, NotFound 退出码。
-            // DoesNotReturn：内部 Environment.Exit 后不返回，调用方流分析可收窄可空状态（如 source 判空后使用）。
-            [DoesNotReturn]
-            void WriteNotFound(string name, string? defType)
+    /// <summary>
+    /// Fetch one Def by its exact defName; specify --type if the name exists in multiple types.
+    /// Without --brief or --field, returns the full JSON; large output may be truncated by the host.
+    /// --brief and --field are mutually exclusive. --brief includes the Def identity and classes[]
+    /// extracted from string *Class fields and polymorphic $type markers for source investigation.
+    /// Field paths use a.b[0].c notation; comps[0].$type selects a polymorphic class name.
+    /// Quote paths containing $type to prevent shell variable expansion.
+    /// Examples:
+    ///   rimsearcher get Steel --type ThingDef
+    ///   rimsearcher get ShieldBelt --type ThingDef --brief
+    ///   rimsearcher get ShieldBelt --type ThingDef --field 'comps[0].$type'
+    /// </summary>
+    /// <param name="defName">Exact Def name; not a translated label.</param>
+    /// <param name="type">Def type for disambiguation; required when defName matches multiple types.</param>
+    /// <param name="brief">Return Def identity and the C# class bridge; cannot be combined with --field.</param>
+    /// <param name="field">Extract one JSON field by path; cannot be combined with --brief.</param>
+    private void Get([Argument] string defName, string? type = null, bool brief = false, string? field = null)
+    {
+        if (TypeGuard.RejectUnknown(type, repository))
+            return;
+
+        // 类型解析/brief/field/full 共用的未命中处理：错误消息,相似名指引, NotFound 退出码。
+        // DoesNotReturn：内部 Environment.Exit 后不返回，调用方流分析可收窄可空状态（如 source 判空后使用）。
+        [DoesNotReturn]
+        void WriteNotFound(string name, string? defType)
+        {
+            Console.Error.WriteLine(defType == null
+                ? $"Error: no Def found with defName '{name}'"
+                : $"Error: no Def found with defName '{name}' and type '{defType}'");
+            WriteNotFoundHint(repository, name, defType);
+            Environment.Exit(ExitCodes.NotFound);
+        }
+
+        // 参数互斥：--brief 与 --field 都是提取视图，同时给出为参数错误。
+        if (brief && field != null)
+        {
+            Console.Error.WriteLine("Error: --brief and --field are mutually exclusive");
+            Environment.Exit(ExitCodes.Error);
+        }
+
+        if (type == null)
+        {
+            var types = repository.FindTypes(defName);
+            if (types.Count == 0)
             {
-                Console.Error.WriteLine(defType == null
-                    ? $"Error: no Def found with defName '{name}'"
-                    : $"Error: no Def found with defName '{name}' and type '{defType}'");
-                WriteNotFoundHint(repository, name, defType);
+                WriteNotFound(defName, null);
+            }
+            if (types.Count > 1)
+            {
+                Console.Error.WriteLine($"Error: '{defName}' matches multiple Def types. Specify --type:");
+                foreach (var candidateType in types)
+                    Console.Error.WriteLine($"  {candidateType}");
                 Environment.Exit(ExitCodes.NotFound);
             }
+            type = types[0];
+        }
 
-            // 参数互斥：--brief 与 --field 都是提取视图，同时给出为参数错误。
-            if (brief && field != null)
+        if (brief)
+        {
+            var source = repository.GetBriefSource(defName, type!);
+            if (source == null)
             {
-                Console.Error.WriteLine("Error: --brief and --field are mutually exclusive");
+                WriteNotFound(defName, type);
+            }
+
+            // 统一提取所有 *Class 桥接字段：不过滤 def_type、不限嵌套深度，
+            // 规则仅为"属性名以 Class 结尾且值为字符串"（排除 useGraphicClass 这类布尔陷阱）。
+            using var document = JsonDocument.Parse(source.FullData);
+            var classNames = new List<string>();
+            CollectClassFields(document.RootElement, classNames);
+
+            var distinctClasses = classNames
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(name => name, StringComparer.Ordinal)
+                .ToArray();
+            if (distinctClasses.Length == 0)
+                Console.Error.WriteLine($"Hint: no class bridge found; try 'fields {defName} --type {type}' or full 'get' — def-reference fields are the bridge");
+
+            output.Write(new BriefDef(
+                source.DefName, source.DefType, source.Label, source.ModName,
+                source.PackageId,
+                distinctClasses));
+            return;
+        }
+
+        if (field != null)
+        {
+            var source = repository.GetBriefSource(defName, type!);
+            if (source == null)
+            {
+                WriteNotFound(defName, type);
+            }
+
+            using var document = JsonDocument.Parse(source.FullData);
+            var status = JsonFieldNavigator.TryNavigate(document.RootElement, field, out var value);
+            if (status == JsonFieldNavigator.NavigateStatus.MalformedPath)
+            {
+                Console.Error.WriteLine($"Error: malformed field path '{field}' (expected format: a.b[0].c)");
                 Environment.Exit(ExitCodes.Error);
             }
-
-            if (type == null)
+            if (status == JsonFieldNavigator.NavigateStatus.NotFound)
             {
-                var types = repository.FindTypes(defName);
-                if (types.Count == 0)
-                {
-                    WriteNotFound(defName, null);
-                }
-                if (types.Count > 1)
-                {
-                    Console.Error.WriteLine($"Error: '{defName}' matches multiple Def types. Specify --type:");
-                    foreach (var candidateType in types)
-                        Console.Error.WriteLine($"  {candidateType}");
-                    Environment.Exit(ExitCodes.NotFound);
-                }
-                type = types[0];
-            }
-
-            if (brief)
-            {
-                var source = repository.GetBriefSource(defName, type!);
-                if (source == null)
-                {
-                    WriteNotFound(defName, type);
-                }
-
-                // 统一提取所有 *Class 桥接字段：不过滤 def_type、不限嵌套深度，
-                // 规则仅为"属性名以 Class 结尾且值为字符串"（排除 useGraphicClass 这类布尔陷阱）。
-                using var document = JsonDocument.Parse(source.FullData);
-                var classNames = new List<string>();
-                CollectClassFields(document.RootElement, classNames);
-
-                var distinctClasses = classNames
-                    .Distinct(StringComparer.Ordinal)
-                    .OrderBy(name => name, StringComparer.Ordinal)
-                    .ToArray();
-                if (distinctClasses.Length == 0)
-                    Console.Error.WriteLine($"Hint: no class bridge found; try 'fields {defName} --type {type}' or full 'get' — def-reference fields are the bridge");
-
-                output.Write(new BriefDef(
-                    source.DefName, source.DefType, source.Label, source.ModName,
-                    source.PackageId,
-                    distinctClasses));
-                return;
-            }
-
-            if (field != null)
-            {
-                var source = repository.GetBriefSource(defName, type!);
-                if (source == null)
-                {
-                    WriteNotFound(defName, type);
-                }
-
-                using var document = JsonDocument.Parse(source.FullData);
-                var status = JsonFieldNavigator.TryNavigate(document.RootElement, field, out var value);
-                if (status == JsonFieldNavigator.NavigateStatus.MalformedPath)
-                {
-                    Console.Error.WriteLine($"Error: malformed field path '{field}' (expected format: a.b[0].c)");
-                    Environment.Exit(ExitCodes.Error);
-                }
-                if (status == JsonFieldNavigator.NavigateStatus.NotFound)
-                {
-                    Console.Error.WriteLine($"Error: field '{field}' not found in '{defName}' (type '{type}')");
-                    Environment.Exit(ExitCodes.NotFound);
-                }
-                Console.WriteLine(value.GetRawText());
-                return;
-            }
-
-            var fullData = repository.GetFullData(defName, type!);
-            if (fullData == null)
-            {
-                Console.Error.WriteLine($"Error: no Def found with defName '{defName}' and type '{type}'");
-                WriteNotFoundHint(repository, defName, type);
+                Console.Error.WriteLine($"Error: field '{field}' not found in '{defName}' (type '{type}')");
                 Environment.Exit(ExitCodes.NotFound);
             }
-            Console.WriteLine(fullData);
-        });
+            Console.WriteLine(value.GetRawText());
+            return;
+        }
+
+        var fullData = repository.GetFullData(defName, type!);
+        if (fullData == null)
+        {
+            Console.Error.WriteLine($"Error: no Def found with defName '{defName}' and type '{type}'");
+            WriteNotFoundHint(repository, defName, type);
+            Environment.Exit(ExitCodes.NotFound);
+        }
+        Console.WriteLine(fullData);
     }
 
     /// <summary>

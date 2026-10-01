@@ -11,6 +11,12 @@ internal static class UpdateChecker
     private const string LatestReleaseUrl = "https://github.com/kearril/RimSearcher/releases/latest";
     private const string ReleasePageUrl = "https://github.com/kearril/RimSearcher/releases/tag";
 
+    /// <summary>
+    /// Check GitHub for a newer RimSearcher release; requires network access.
+    /// Prints update status and download instructions but does not install or replace files.
+    /// Check failures are reported without failing the task.
+    /// Example: rimsearcher check update
+    /// </summary>
     public static void Check()
     {
         // 失败路径的等待上限固定为10s

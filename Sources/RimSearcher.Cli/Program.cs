@@ -30,12 +30,32 @@ MaintenanceCommands.Register(app);
 // 命令集合与下方 Register 调用一一对应，新增命令时需同步。
 string[] knownCommands = ["search", "list", "get", "find", "fields", "values", "types", "mods", "check update"];
 
-// 帮助输出：规范入口 -h/--help（含无参数）。自控输出以附加文档指引
+// 总帮助保留命令导航；参数和查询语义由框架从命令方法的文档注释生成。
 if (args.Length == 0 || (args.Length == 1 && (args[0] == "-h" || args[0] == "--help")))
 {
-    Console.WriteLine("Usage: rimsearcher <command> [options]");
-    Console.WriteLine("Commands: " + string.Join(", ", knownCommands));
-    Console.WriteLine("Full documentation: skills/rimsearcher/SKILL.md");
+    Console.WriteLine("""
+        RimSearcher queries runtime Def snapshots exported by DataMod.
+        Usage: rimsearcher <command> [arguments] [options]
+
+        Commands:
+          search        Search Def data with FTS5
+          list          Browse Defs by type or mod
+          get           Fetch a Def, class bridge, or JSON field
+          find          Reverse lookup by exact field value
+          fields        Inspect a Def's field tree
+          values        Enumerate distinct field values
+          types         Count Defs by type
+          mods          Count Defs by mod
+          check update  Check GitHub for a newer release
+
+        Help: rimsearcher <command> --help (also -h)
+        Example: rimsearcher search --help
+        Version: rimsearcher --version
+        Database: defs.db beside the executable, not in the shell's working directory.
+        CLI and DataMod database versions must match; re-export after a tool upgrade.
+        Exit codes: 0 success; 1 error; 2 not found or needs disambiguation.
+        An empty list page returns exit 0. Help needs no database, MCP, or network.
+        """);
     return;
 }
 

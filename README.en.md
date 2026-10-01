@@ -139,6 +139,14 @@ rimsearcher mods
 rimsearcher check update
 ```
 
+Use the current CLI's help for parameter meanings, defaults, matching rules, and examples. Help does not require a database, MCP, or network access.
+
+```bash
+rimsearcher --help
+rimsearcher search --help
+rimsearcher get --help
+```
+
 ### AI integration (Skill)
 
 The Skill is where the toolchain's soul lives — it teaches the AI how to analyze, not just what tools to use.

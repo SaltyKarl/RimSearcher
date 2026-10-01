@@ -139,6 +139,14 @@ rimsearcher mods
 rimsearcher check update
 ```
 
+参数含义、默认值、匹配规则和调用示例以当前 CLI 的帮助为准；查看帮助不需要数据库、MCP 或网络。
+
+```bash
+rimsearcher --help
+rimsearcher search --help
+rimsearcher get --help
+```
+
 ### AI 集成（Skill）
 
 Skill 是工具链的灵魂所在——它教 AI 如何分析，而不只是能用什么工具。
