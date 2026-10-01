@@ -6,6 +6,15 @@ function Invoke-Dotnet {
     & dotnet @args
     if ($LASTEXITCODE -ne 0) { throw "dotnet failed with exit code $LASTEXITCODE." }
 }
+function Add-ZipEntry($archive, [string]$sourcePath, [string]$entryName) {
+    $entry = $archive.CreateEntry($entryName, [IO.Compression.CompressionLevel]::Optimal)
+    $entry.LastWriteTime = [DateTimeOffset]::new(2026, 1, 1, 0, 0, 0, [TimeSpan]::Zero)
+    $stream = $entry.Open()
+    $input = [IO.File]::OpenRead($sourcePath)
+    $input.CopyTo($stream)
+    $input.Dispose()
+    $stream.Dispose()
+}
 
 $root = Split-Path $PSScriptRoot -Parent
 $modSource = Join-Path $root 'RimSearcher_DataMod'
@@ -62,9 +71,9 @@ try {
     $zip = "$work/RimSearcher_DataMod.zip"
     $archive = [IO.Compression.ZipFile]::Open($zip, [IO.Compression.ZipArchiveMode]::Create)
     try {
-        foreach ($file in $files) {
+        foreach ($file in ($files | Sort-Object FullName)) {
             $relative = [IO.Path]::GetRelativePath($modSource, $file.FullName).Replace('\', '/')
-            [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $file.FullName, "RimSearcher_DataMod/$relative") | Out-Null
+            Add-ZipEntry $archive $file.FullName "RimSearcher_DataMod/$relative"
         }
     }
     finally { $archive.Dispose() }
@@ -73,14 +82,14 @@ try {
     $skillZip = "$work/rimsearcher.zip"
     $archive = [IO.Compression.ZipFile]::Open($skillZip, [IO.Compression.ZipArchiveMode]::Create)
     try {
-        foreach ($file in Get-ChildItem $skill -Recurse -File) {
+        foreach ($file in (Get-ChildItem $skill -Recurse -File | Sort-Object FullName)) {
             $relative = [IO.Path]::GetRelativePath($skill, $file.FullName).Replace('\', '/')
             $source = switch ($relative) {
                 'bin/rimsearcher.exe' { $cli }
                 'assets/RimSearcher_DataMod.zip' { $zip }
                 default { $file.FullName }
             }
-            [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $source, "rimsearcher/$relative") | Out-Null
+            Add-ZipEntry $archive $source "rimsearcher/$relative"
         }
     }
     finally { $archive.Dispose() }
@@ -93,6 +102,9 @@ try {
     try {
         foreach ($i in 0..($targets.Count - 1)) {
             if ([IO.File]::Exists($targets[$i])) {
+                if ((Get-FileHash $sources[$i] -Algorithm SHA256).Hash -eq (Get-FileHash $targets[$i] -Algorithm SHA256).Hash) {
+                    continue
+                }
                 [IO.File]::Replace($sources[$i], $targets[$i], "$work/previous-$i")
             }
             else { [IO.File]::Move($sources[$i], $targets[$i]) }

@@ -12,6 +12,7 @@
         <SelfContained>false</SelfContained>
         <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <Deterministic>true</Deterministic>
     </PropertyGroup>
 
     <ItemGroup>
