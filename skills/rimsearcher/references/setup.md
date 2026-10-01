@@ -1,33 +1,90 @@
-# Bundled Tools Setup
+# RimSearcher Project Setup
 
-All paths in this reference are relative to the installed `rimsearcher` Skill directory unless stated otherwise.
+Path conventions:
+- **Bundled Skill Assets**: `bin/rimsearcher.exe` and `assets/RimSearcher_DataMod.zip` (located in the installed Skill root directory).
+- **Project Workspace**: `.rimsearcher/` (located in the current project root directory).
 
-## Requirements
+## 1. Prepare Workspace
 
-- The bundled CLI targets Windows x64 and requires .NET 10 Runtime. It is not self-contained.
-- RimWorld must be installed locally. Game assemblies and third-party mods are not included.
-- C# source analysis requires the external [DecompilerServer](https://github.com/pardeike/DecompilerServer) MCP server. Follow its installation instructions for your AI client; it is not bundled here.
+Determine the project root from the current workspace structure (ask only if there is genuine ambiguity):
+1. Create the `.rimsearcher/` directory (reuse if it already exists).
+2. If the project CLI is missing, copy `bin/rimsearcher.exe` from the Skill directory to `.rimsearcher/rimsearcher.exe` (do not overwrite an existing executable).
+3. In Git repositories, add `.rimsearcher/` to `.gitignore` to avoid committing binaries and database snapshots.
+4. If `.rimsearcher/README.md` is missing, initialize it using the template below; if it exists, preserve user content and only fill missing sections.
 
-## Install DataMod
+```markdown
+# RimSearcher Project Environment
 
-Extract `assets/RimSearcher_DataMod.zip` into the game's `Mods/` directory. The archive contains the top-level `RimSearcher_DataMod/` folder. Keep its `About/`, `Assemblies/`, `Native/`, and `Languages/` together; the main DataMod DLL alone is insufficient.
+- Status: Incomplete
 
-Confirm with the user before replacing an existing game mod installation. Enable **RimSearcherDataMod** in RimWorld's mod list and load the mod environment whose Def data the project needs.
+## Tool Versions
 
-## CLI and Database
+- Project CLI: Unconfirmed
+- Database Version: Unconfirmed
 
-For manual project setup, copy `bin/rimsearcher.exe` into the project's `.rimsearcher/` directory. Invoke that executable by its explicit path; no PATH change is needed.
+## Game Locations
 
-Open **Options > Mod Settings > RimSearcherDataMod** and export the Def database. The default output is `defs.db` in the installed DataMod directory; the settings page also accepts a different export path.
+- Game Root: Unconfirmed
+- Game DLL Directory: Unconfirmed
+- Core Assembly Assembly-CSharp.dll: Unconfirmed
+- DataMod Installation Directory: Unconfirmed
 
-Place the exported file at `<project>/.rimsearcher/defs.db`, beside the copied executable. The CLI resolves the database from its executable directory, not the shell's working directory.
+## Dependent Mods
 
-Run the copied executable with `--version`, then `types`. A successful `types` query reports the Def types in the exported snapshot. Use the project CLI's `--help` for its inclusive range of supported DataMod export versions. An older supported database remains usable after a CLI-only upgrade; no re-export or DataMod replacement is required solely for version alignment. An export below the range or without a version marker needs a supported DataMod export; an export above the range needs a CLI that supports it. Retain the previous database until any new export succeeds.
+- Mod Directories: Unconfirmed
+- Relevant Assembly DLLs: Unconfirmed
 
-The bundled CLI and DataMod share a release version, but an installed older DataMod may remain in use when its exports are supported. The CLI reads snapshots without rewriting their export-version markers or migrating data. Do not place user databases or machine-specific paths inside the global Skill installation. A Def database is a snapshot of the exported mod environment, not a live view of project files; format compatibility does not establish snapshot freshness.
+## Def Snapshot
 
-## DecompilerServer
+- Project Database: defs.db beside this README
+- Export Source Path: Unconfirmed
+- Export Timestamp: Unconfirmed
+- Game Version, DLCs, Active Mods & Load Order: Unconfirmed
 
-Use the actual game and relevant mod DLL paths with the MCP server. Confirm its loaded context before reading source; a saved path is not proof that the assembly is loaded.
+## Notes
 
-For DLL discovery, use the installed game's managed assemblies and the enabled mods' assemblies. Do not distribute those DLLs with this Skill. Def-only queries do not require DecompilerServer.
+No confirmed special requirements.
+```
+
+## 2. Collect & Confirm Environment Paths
+
+Ask the user once for the required information (skip items already provided or recorded):
+
+1. **RimWorld Game Root**: Used to locate the `Mods/` directory.
+   - *Common reference (Steam default)*: `<SteamLibrary>/steamapps/common/RimWorld`
+2. **Dependent Mod Directories & DLLs (Optional)**: Third-party mod directories or assemblies required by this project. Record "None" if there are no dependencies; leave "Unconfirmed" if unspecified.
+
+**Core Game DLL (`Assembly-CSharp.dll`)**:
+Once the game root is known, **automatically probe the standard path first**: `<GameRoot>/RimWorldWin64_Data/Managed/Assembly-CSharp.dll`. If present, verify and record its full path immediately without asking the user. Only ask for the DLL directory if the file is not found or the layout is non-standard.
+
+Verify that `Assembly-CSharp.dll` and relevant mod DLLs actually exist on disk before recording their full paths in `.rimsearcher/README.md`. Never guess local paths.
+
+## 3. Configure DecompilerServer MCP
+
+Use the client's [DecompilerServer](https://github.com/pardeike/DecompilerServer) tools to load `Assembly-CSharp.dll` and any required mod assemblies (align tool names and arguments with the active MCP definition):
+- Verify that the loaded context matches the recorded DLL paths.
+- Decompile or inspect a standard type (e.g. `RimWorld.Pawn`) to verify MCP communication.
+- Record only persistent DLL file paths; do not store temporary context IDs as long-term config, and do not copy game DLLs into the Skill directory.
+- If MCP is unconfigured, guide the user through their client's setup instructions.
+
+## 4. Export & Verify Def Database Snapshot
+
+1. **Install DataMod**: With user confirmation, extract `assets/RimSearcher_DataMod.zip` into the game's `Mods/` directory. Preserve the top-level `RimSearcher_DataMod/` folder and all bundled dependencies (`About/`, `Assemblies/`, `Native/`, `Languages/`). Reuse an existing functional installation.
+2. **Export Snapshot**:
+   - Guide the user to start RimWorld, enable **RimSearcherDataMod** in the mod list, and load the required mod environment.
+   - Open **Options > Mod Settings > RimSearcherDataMod** and click **Export Def Database**.
+3. **Deploy Snapshot**: Copy the exported database (generated by default at `<GameRoot>/Mods/RimSearcher_DataMod/defs.db`) to `.rimsearcher/defs.db` beside `rimsearcher.exe`. Preserve any existing database and confirm with the user before replacing it; do not borrow databases from other projects.
+4. **Verify**:
+   - Run `--version` and `mods` using the project CLI's explicit path to confirm the tool runs and queries the database successfully.
+   - The database export version must fall within the range supported by the CLI (run `<cli_path> --help` to check supported versions).
+   - The CLI targets Windows x64 and requires [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0). If missing, guide the user to install it.
+
+## 5. Completion & Next Steps
+
+Update the status in `.rimsearcher/README.md` to "Complete" once all conditions are met:
+- Paths and environment configuration are fully recorded;
+- DecompilerServer can read target source code;
+- The project CLI successfully executes `mods` and returns mod records.
+
+If any prerequisite is missing, retain "Incomplete" and state the exact remaining steps.
+Routine tasks proceed directly using the configured environment without repeating setup. When tools require upgrading, follow [update.md](update.md).

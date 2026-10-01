@@ -84,7 +84,7 @@ npx skills add "https://github.com/kearril/RimSearcher#master" --skill rimsearch
 
 #### Release 手动下载
 
-从 [Releases](https://github.com/kearril/RimSearcher/releases) 下载附件 **`skills.zip`**，解压后将完整 `rimsearcher/` 放入客户端的 Skill 目录。不要只复制 `SKILL.md`，也不要下载 GitHub 自动生成的 `Source code (zip)` 代替附件。历史 Release 可能没有此附件。
+从 [Releases](https://github.com/kearril/RimSearcher/releases) 下载附件 **`rimsearcher.zip`**，解压后将完整 `rimsearcher/` 放入客户端的 Skill 目录。不要只复制 `SKILL.md`，也不要下载 GitHub 自动生成的 `Source code (zip)` 代替附件。历史 Release 可能没有此附件。
 
 压缩包顶层是 `rimsearcher/`，其中的 `bin/rimsearcher.exe` 和 `assets/RimSearcher_DataMod.zip` 与原生安装内容相同。
 
@@ -102,7 +102,7 @@ npx skills add "https://github.com/kearril/RimSearcher#master" --skill rimsearch
 
 ```powershell
 .\.rimsearcher\rimsearcher.exe --version
-.\.rimsearcher\rimsearcher.exe types
+.\.rimsearcher\rimsearcher.exe mods
 ```
 
 CLI 从 EXE 所在目录读取数据库，不从当前工作目录读取。更多环境准备说明见 [随包安装参考](skills/rimsearcher/references/setup.md)；全局 Skill 中不存放用户数据库。
@@ -115,7 +115,7 @@ CLI 从 EXE 所在目录读取数据库，不从当前工作目录读取。更�
 |---|---|
 | **全局 Skill / 原生插件** | 使用对应客户端的插件更新功能；插件和市场条目版本用于发现更新。 |
 | **npx skills 安装** | 重新执行上述带 `#master` 的安装命令。 |
-| **手动 Skill** | 下载新版 Release 的 `skills.zip`，替换完整 `rimsearcher/`。 |
+| **手动 Skill** | 下载新版 Release 的 `rimsearcher.zip`，替换完整 `rimsearcher/`。 |
 | **项目 CLI / DataMod / 数据库** | 经确认后复制新版 CLI；旧数据库在其支持范围内时，可保留 DataMod 和数据库。数据库过旧或需要新快照时，使用受支持的 DataMod 重新导出，保留旧库直到成功。 |
 
 更新全局 Skill 不会自动覆盖项目 `.rimsearcher/` 的工具或数据。数据库记录实际导出它的 DataMod 版本，CLI 只接受自己声明的闭区间；查看项目 CLI 的 `--help` 获取支持范围。数据库高于上限时需要支持它的新版 CLI，不能绕过检查或改写版本标记。页面顶部徽章显示仓库 Skill 或插件清单的最近更新时间；Release 附件保留对应发布时的内容。
@@ -192,11 +192,11 @@ pwsh -File scripts/build-skill.ps1
 
 - `skills/rimsearcher/bin/rimsearcher.exe`
 - `skills/rimsearcher/assets/RimSearcher_DataMod.zip`
-- `.release/skills.zip`：完整 Skill，顶层为 `rimsearcher/`，发布时作为 Release 附件上传。
+- `.release/rimsearcher.zip`：完整 Skill，顶层为 `rimsearcher/`，发布时作为 Release 附件上传。
 
-模组 ZIP 自带顶层 `RimSearcher_DataMod/`，可解压到游戏 `Mods/`。脚本刷新根目录模组的生成目录 `Assemblies/`、`Native/`，不改根目录导出的数据库或元数据；模组打包范围排除数据库、PDB、游戏 DLL。三个分发产物都准备好后才更新目标文件；更新失败时回退已替换的文件，回退失败则保留备份并报错。不替换 Skill 文案，不更新根目录历史 `skills.zip`，不覆盖用户项目，不自动提交或发布。
+模组 ZIP 自带顶层 `RimSearcher_DataMod/`，可解压到游戏 `Mods/`。脚本刷新根目录模组的生成目录 `Assemblies/`、`Native/`，不改根目录导出的数据库或元数据；模组打包范围排除数据库、PDB、游戏 DLL。三个分发产物都准备好后才更新目标文件；更新失败时回退已替换的文件，回退失败则保留备份并报错。不替换 Skill 文案，不覆盖用户项目，不自动提交或发布。
 
-插件初始版本为 `1.0.0`，独立于 CLI/数据库版本。发布 Skill 文案或随包资源更新时，手动同步 `.claude-plugin/plugin.json` 与 `.claude-plugin/marketplace.json` 中的插件版本，再构建并上传 `.release/skills.zip`。
+插件初始版本为 `1.0.0`，独立于 CLI/数据库版本。发布 Skill 文案或随包资源更新时，手动同步 `.claude-plugin/plugin.json` 与 `.claude-plugin/marketplace.json` 中的插件版本，再构建并上传 `.release/rimsearcher.zip`。
 
 #### 数据库兼容范围
 

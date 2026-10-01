@@ -30,7 +30,7 @@ Use the client's native channel when available. Installation commands and all fi
 - Codex native plugin
 - omp native plugin
 - `npx skills` universal installer
-- Manual `skills.zip` attachment from [Releases](https://github.com/kearril/RimSearcher/releases)
+- Manual `rimsearcher.zip` attachment from [Releases](https://github.com/kearril/RimSearcher/releases)
 
 Install one channel only. Confirm installation scope with the user before changing client settings. For manual installation, place the complete top-level `rimsearcher/` folder in the client's Skill directory, including `bin/`, `assets/`, and `references/`. Use the Release attachment, not `Source code (zip)` or the historical repository-root archive. Older Releases may not include the attachment.
 
@@ -60,10 +60,10 @@ From the project directory, run:
 
 ```powershell
 .\.rimsearcher\rimsearcher.exe --version
-.\.rimsearcher\rimsearcher.exe types
+.\.rimsearcher\rimsearcher.exe mods
 ```
 
-A successful `types` query reports the Def types in the exported snapshot. If C# analysis is requested, confirm DecompilerServer can read a known type from the loaded game assembly.
+A successful `mods` query reports the loaded mods in the exported snapshot. If C# analysis is requested, confirm DecompilerServer can read a known type from the loaded game assembly.
 
 ### Done
 

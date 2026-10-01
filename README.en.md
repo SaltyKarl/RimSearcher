@@ -84,7 +84,7 @@ Select your client when prompted. Omit `--global` for project installation. Keep
 
 #### Manual Release Download
 
-Download the **`skills.zip`** attachment from [Releases](https://github.com/kearril/RimSearcher/releases). Extract it and place the complete `rimsearcher/` folder in your client's Skill directory. Do not copy only `SKILL.md` or substitute GitHub's generated `Source code (zip)` archive. Older Releases may not have this attachment.
+Download the **`rimsearcher.zip`** attachment from [Releases](https://github.com/kearril/RimSearcher/releases). Extract it and place the complete `rimsearcher/` folder in your client's Skill directory. Do not copy only `SKILL.md` or substitute GitHub's generated `Source code (zip)` archive. Older Releases may not have this attachment.
 
 The archive's top-level folder is `rimsearcher/`. Its `bin/rimsearcher.exe` and `assets/RimSearcher_DataMod.zip` match the native installation contents.
 
@@ -102,7 +102,7 @@ Run from the project directory:
 
 ```powershell
 .\.rimsearcher\rimsearcher.exe --version
-.\.rimsearcher\rimsearcher.exe types
+.\.rimsearcher\rimsearcher.exe mods
 ```
 
 The CLI reads the database beside its executable, not from the current working directory. See the [bundled setup reference](skills/rimsearcher/references/setup.md) for environment preparation. Keep user databases outside the global Skill.
@@ -115,7 +115,7 @@ The CLI reads the database beside its executable, not from the current working d
 |---|---|
 | **Global Skill / native plugin** | Use the client's plugin update feature. Plugin and marketplace entry versions identify updates. |
 | **npx skills installation** | Repeat the installation command above, retaining `#master`. |
-| **Manual Skill** | Download a newer Release's `skills.zip` and replace the complete `rimsearcher/` folder. |
+| **Manual Skill** | Download a newer Release's `rimsearcher.zip` and replace the complete `rimsearcher/` folder. |
 | **Project CLI / DataMod / database** | Copy the newer CLI after approval. Keep the existing DataMod and snapshot if the database remains supported. For an older unsupported database or a fresh snapshot, export with a supported DataMod; retain the old database until successful. |
 
 Updating the global Skill does not overwrite tools or data in the project's `.rimsearcher/`. The database records the DataMod version that exported it; the CLI accepts only its declared inclusive range. Use the project CLI's `--help` to inspect that range. A database above the upper limit needs a CLI that supports it; do not bypass the check or rewrite its version marker. The badge shows the latest repository change to the Skill or plugin manifests; Release attachments retain their published contents.
@@ -191,11 +191,11 @@ The script uses the installed SDK and restores dependencies within the project v
 
 - `skills/rimsearcher/bin/rimsearcher.exe`
 - `skills/rimsearcher/assets/RimSearcher_DataMod.zip`
-- `.release/skills.zip`: the complete Skill with a top-level `rimsearcher/` folder, ready to upload as a Release attachment.
+- `.release/rimsearcher.zip`: the complete Skill with a top-level `rimsearcher/` folder, ready to upload as a Release attachment.
 
-The mod ZIP contains the top-level `RimSearcher_DataMod/` folder, ready to extract into the game's `Mods/`. The script refreshes the root mod's generated `Assemblies/` and `Native/` directories without changing root-level exported databases or metadata. Mod packaging excludes databases, PDBs, and game DLLs. All three distribution artifacts are prepared before updating their target files; an update failure rolls back files already replaced. If rollback fails, backups are retained and the build reports an error. The script does not replace Skill text, update the historical root `skills.zip`, overwrite user projects, commit, or publish.
+The mod ZIP contains the top-level `RimSearcher_DataMod/` folder, ready to extract into the game's `Mods/`. The script refreshes the root mod's generated `Assemblies/` and `Native/` directories without changing root-level exported databases or metadata. Mod packaging excludes databases, PDBs, and game DLLs. All three distribution artifacts are prepared before updating their target files; an update failure rolls back files already replaced. If rollback fails, backups are retained and the build reports an error. The script does not replace Skill text, overwrite user projects, commit, or publish.
 
-The initial plugin version is `1.0.0`, independent of CLI/database versions. When publishing Skill text or bundled resource updates, manually keep the plugin versions in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` in sync, then build and upload `.release/skills.zip`.
+The initial plugin version is `1.0.0`, independent of CLI/database versions. When publishing Skill text or bundled resource updates, manually keep the plugin versions in `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` in sync, then build and upload `.release/rimsearcher.zip`.
 
 #### Database Compatibility Range
 
