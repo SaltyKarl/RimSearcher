@@ -44,10 +44,11 @@ if (args.Length == 0 || (args.Length == 1 && (args[0] == "-h" || args[0] == "--h
           find          Reverse lookup by exact field value
           fields        Inspect a Def's field tree
           values        Enumerate distinct field values
-          types         Count Defs by type
-          mods          Count Defs by mod
+          types         Discover valid Def types and counts (for --type filter)
+          mods          Discover loaded mod names and package IDs (for --mod filter)
           check update  Check GitHub for a newer release
 
+        Format: stdout produces clean JSON; stderr produces diagnostic hints and errors.
         Help: rimsearcher <command> --help (also -h)
         Example: rimsearcher search --help
         Version: rimsearcher --version

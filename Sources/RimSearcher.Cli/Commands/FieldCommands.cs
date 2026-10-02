@@ -21,6 +21,7 @@ internal sealed class FieldCommands(FieldRepository fieldRepository, DefReposito
 
     /// <summary>
     /// Reverse lookup by an exact field value at a literal path suffix.
+    /// Both 'fieldPath' and 'value' are positional arguments (do not pass as options).
     /// Paths and values are case-sensitive. Lists require an index such as comps[0].compClass;
     /// different Defs may use different indexes. No hit at comps[0] does not rule out other indexes.
     /// Use full values such as RimWorld.CompShield; partial values belong in search.

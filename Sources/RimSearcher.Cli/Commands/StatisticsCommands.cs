@@ -14,14 +14,14 @@ internal sealed class StatisticsCommands(StatisticsRepository repository, JsonOu
     }
 
     /// <summary>
-    /// List all Def types with their Def counts.
+    /// Discover all Def types with their Def counts.
     /// Use the returned type names with --type on query commands.
     /// Example: rimsearcher types
     /// </summary>
     private void Types() => output.Write(repository.GetTypes());
 
     /// <summary>
-    /// List mods represented in the Def snapshot with their package IDs and Def counts.
+    /// Discover mods represented in the Def snapshot with their package IDs and Def counts.
     /// Use the returned mod names with --mod on query commands.
     /// Example: rimsearcher mods
     /// </summary>

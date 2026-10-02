@@ -20,6 +20,7 @@ internal sealed class DefCommands(DefRepository repository, JsonOutput output)
 
     /// <summary>
     /// Fetch one Def by its exact defName; specify --type if the name exists in multiple types.
+    /// 'defName' is a positional argument (not an option).
     /// Without --brief or --field, returns the full JSON; large output may be truncated by the host.
     /// --brief and --field are mutually exclusive. --brief includes the Def identity and classes[]
     /// extracted from string *Class fields and polymorphic $type markers for source investigation.
