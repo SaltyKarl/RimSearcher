@@ -9,7 +9,7 @@ Path conventions:
 Determine the project root from the current workspace structure (ask only if there is genuine ambiguity):
 1. Create the `.rimsearcher/` directory (reuse if it already exists).
 2. If the project CLI is missing, copy `bin/rimsearcher.exe` from the Skill directory to `.rimsearcher/rimsearcher.exe` (do not overwrite an existing executable).
-3. In Git repositories, add `.rimsearcher/` to `.gitignore` to avoid committing binaries and database snapshots.
+3. In Git repositories, add `.rimsearcher/*` with an exception `!.rimsearcher/README.md` to `.gitignore` to avoid committing large binaries and database snapshots while preserving environment documentation under version control.
 4. If `.rimsearcher/README.md` is missing, initialize it using the template below; if it exists, preserve user content and only fill missing sections.
 
 ```markdown
@@ -51,9 +51,9 @@ No confirmed special requirements.
 Ask the user once for the required information (skip items already provided or recorded):
 
 1. **RimWorld Game Root**: Used to locate the `Mods/` directory.
-   - *Common reference (Steam default)*: `<SteamLibrary>/steamapps/common/RimWorld`
+   - *Common reference (Steam Game Root)*: `<SteamLibrary>/steamapps/common/RimWorld`
 2. **Dependent Mod Directories & DLLs (Optional)**: Third-party mod directories or assemblies required by this project. Record "None" if there are no dependencies; leave "Unconfirmed" if unspecified.
-
+   - *Common reference (Steam Workshop Mods)*: `<SteamLibrary>/steamapps/workshop/content/294100`
 **Core Game DLL (`Assembly-CSharp.dll`)**:
 Once the game root is known, **automatically probe the standard path first**: `<GameRoot>/RimWorldWin64_Data/Managed/Assembly-CSharp.dll`. If present, verify and record its full path immediately without asking the user. Only ask for the DLL directory if the file is not found or the layout is non-standard.
 
