@@ -9,7 +9,7 @@
 根据当前工作空间与结构定位项目根目录（存在真实歧义时再询问）：
 1. 创建 `.rimsearcher/` 目录（已有目录直接复用）。
 2. 若缺少项目 CLI，将 Skill 内置的 `bin/rimsearcher.exe` 复制到 `.rimsearcher/rimsearcher.exe`（不覆盖已存在的 EXE）。
-3. 对 Git 项目，将 `.rimsearcher/` 加入 `.gitignore`（避免将二进制与数据库快照提交入库）。
+3. 对 Git 项目，将 `.rimsearcher/*` 加入 `.gitignore` 并保留例外 `!.rimsearcher/README.md`（避免将大文件二进制与数据库快照提交入库，同时保留环境说明受控）。
 4. 若缺少 `.rimsearcher/README.md`，使用下方模板初始化；若已存在则保留用户已有内容，仅增补缺失项。
 
 ```markdown
@@ -51,9 +51,9 @@
 通过单次交互向用户收集以下关键信息（已提供或已有记录的内容无需重复询问）：
 
 1. **RimWorld 游戏根目录**：用于定位 DataMod 安装目录（`Mods/`）。
-   - *常见参考（Steam 默认）*：`<Steam库目录>/steamapps/common/RimWorld`
+   - *常见参考（Steam 游戏根目录）*：`<Steam库目录>/steamapps/common/RimWorld`
 2. **依赖模组目录与相关 DLL（可选）**：当前项目所依赖的第三方模组目录或程序集。若无依赖明确记录为“无”，未指定则保持“未确认”。
-
+   - *常见参考（Steam 创意工坊模组目录）*：`<Steam库目录>/steamapps/workshop/content/294100`
 **关于游戏核心 DLL（Assembly-CSharp.dll）**：
 获得游戏根目录后，**优先自动探测标准路径**：`<游戏根目录>/RimWorldWin64_Data/Managed/Assembly-CSharp.dll`。若该文件存在，直接校验并记录完整路径，无需向用户追问；仅在非标准布局或找不到该文件时，再向用户询问核心 DLL 存放目录。
 
