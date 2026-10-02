@@ -89,7 +89,17 @@ rimsearcher/
     └── update.md                     
 ```
 
-Once installed, simply prompt your Agent inside any RimWorld mod repository. The Agent automatically follows internal references to perform environment self-checks and on-demand initialization.
+---
+
+### 2.4 Project Initialization
+
+Once globally installed, simply send the following in any RimWorld mod project session:
+
+```text
+Please use rimsearcher to initialize this project.
+```
+
+The Agent will automatically prepare the local environment, isolate data and tools, and proceed with routine analysis.
 
 ---
 
