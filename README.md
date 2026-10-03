@@ -40,8 +40,8 @@ AI Coding Agent (Agent) ───┤
 
 ### 2.1 Prerequisites
 
-- **[.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)** (Required): Execution environment for the CLI query tool.
-- **[DecompilerServer](https://github.com/pardeike/DecompilerServer)** (Optional): C# decompilation MCP service, required for source investigation and Harmony hook analysis.
+- [**.NET 10 Runtime**](https://dotnet.microsoft.com/download/dotnet/10.0): Execution environment for the CLI query tool.
+- [**DecompilerServer**](https://github.com/pardeike/DecompilerServer): C# source decompilation MCP service, required for source evidence and hook analysis.
 
 ---
 
@@ -50,30 +50,47 @@ AI Coding Agent (Agent) ───┤
 > 💡 **Simplest Approach**: Copy and send the instruction below directly to your AI coding agent. It will identify your current client environment, select the optimal installation channel, and set up project isolation automatically:
 >
 > ```text
-> Please install the RimSearcher skill (https://github.com/kearril/RimSearcher#master) for me, preferably globally.
+> Please install the RimSearcher skill (https://github.com/kearril/RimSearcher) for me, preferably globally.
 > ```
 
 If you prefer manual installation, **global installation is recommended** (install once, reuse across all local mod projects; the Agent automatically creates `.rimsearcher/` in the project root to ensure complete environment isolation):
 
-#### Option A: Claude Code & Compatible Plugin Ecosystems
+#### Option A: Claude Code Plugin Marketplace
+
 ```bash
 claude plugin marketplace add kearril/RimSearcher
 claude plugin install rimsearcher@rimsearcher-marketplace
 ```
-*(If using a third-party client compatible with the Claude Code plugin specification, add this repository via its plugin management interface or equivalent CLI command.)*
 
-#### Option B: Automated Installation via npx skills (Requires Node.js, Recommended)
-Using the general-purpose installer, automatically discovers and installs into supported agent clients on your system:
+*(If using other agent clients compatible with the Claude Code plugin specification, add this repository via their corresponding plugin management tools or equivalent CLI commands.)*
+
+#### Option B: Installation via npx skills (Requires Node.js)
+
+Via the [**vercel-labs/skills**](https://github.com/vercel-labs/skills) universal installer, automatically discovers and distributes to supported agent clients across your system with broad compatibility (recommended):
+
 ```bash
-npx skills add "https://github.com/kearril/RimSearcher#master" --skill rimsearcher --global
+npx skills add "https://github.com/kearril/RimSearcher" --skill rimsearcher --global
 ```
 
 #### Option C: Manual Extraction from Release
+
 Download **`rimsearcher.zip`** from [Releases](https://github.com/kearril/RimSearcher/releases), and extract the `rimsearcher/` directory into your client's global skills directory.
 
 ---
 
-### 2.3 Skill Package Layout
+### 2.3 Project Initialization
+
+Once globally installed, simply send the following in any RimWorld mod project session:
+
+```text
+Please use rimsearcher to initialize this project.
+```
+
+The Agent will automatically prepare the local environment, isolate data and tools, and proceed with routine analysis.
+
+---
+
+### 2.4 Skill Package Layout
 
 The distributed Skill package is completely self-contained within a single directory (no complex manual setup required—your agent manages everything):
 
@@ -88,19 +105,6 @@ rimsearcher/
     ├── setup.md                      
     └── update.md                     
 ```
-
----
-
-### 2.4 Project Initialization
-
-Once globally installed, simply send the following in any RimWorld mod project session:
-
-```text
-Please use rimsearcher to initialize this project.
-```
-
-The Agent will automatically prepare the local environment, isolate data and tools, and proceed with routine analysis.
-
 ---
 
 ## 3. Building

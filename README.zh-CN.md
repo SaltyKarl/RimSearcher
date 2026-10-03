@@ -27,6 +27,7 @@ AI 编码助手 (Agent) ──────┤
                            └── [DecompilerServer]  ──> 游戏/模组 DLL ────> 审查真实 C# 实现与 Hook 注入点
 ```
 
+
 | 组件                      | 类型              | 定位与职责                                                                    |
 | ----------------------- | --------------- | ------------------------------------------------------------------------ |
 | **RimSearcher.DataMod** | 游戏内 Mod (C#)    | 在游戏运行时，导出完成继承与 Patch 合并后的全量 Def 拓扑至 SQLite 数据库（`defs.db`），确立第一优先级的可信数据源。 |
@@ -34,14 +35,15 @@ AI 编码助手 (Agent) ──────┤
 | **DecompilerServer**    | MCP 服务（由外部项目提供） | dll程序集反编译服务。直接挂载原版及模组 DLL，提供类型检索、反编译源码与 IL 级指令分析。                        |
 | **rimsearcher Skill**   | Agent 技能规范      | 智能体工作流指南，引导项目初始化与agent操作准则。                                              |
 
+
 ---
 
 ## 2. 快速开始
 
 ### 2.1 运行依赖
 
-- **[.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)**：CLI 查询工具运行环境。
-- **[DecompilerServer](https://github.com/pardeike/DecompilerServer)**：C# 源码反编译 MCP 服务，进行源码实证与 Hook 分析时必需。
+- [**.NET 10 Runtime**](https://dotnet.microsoft.com/download/dotnet/10.0)：CLI 查询工具运行环境。
+- [**DecompilerServer**](https://github.com/pardeike/DecompilerServer)：C# 源码反编译 MCP 服务，进行源码实证与 Hook 分析时必需。
 
 ---
 
@@ -50,30 +52,47 @@ AI 编码助手 (Agent) ──────┤
 > 💡 **最省心的方式**：直接把下面这句话复制发送给你的 AI 编码助手，它会自主识别当前客户端环境、选择最优渠道完成安装，并为你的模组项目建立环境隔离：
 >
 > ```text
-> 请帮我安装 RimSearcher 技能（https://github.com/kearril/RimSearcher#master），推荐全局安装。
+> 请帮我安装 RimSearcher 技能（https://github.com/kearril/RimSearcher），推荐全局安装。
 > ```
 
 如果你喜欢手动安装，**推荐全局安装**（一次安装，多项目复用；Agent 介入时会自动在当前项目创建 `.rimsearcher/` 进行环境隔离）：
 
-#### 方式 A：Claude Code 及兼容的插件生态
+#### 方式 A：Claude Code 插件市场
+
 ```bash
 claude plugin marketplace add kearril/RimSearcher
 claude plugin install rimsearcher@rimsearcher-marketplace
 ```
-*（若使用兼容 Claude Code 插件规范的第三方客户端，可在其对应的插件管理工具中添加本仓库或替换为相应 CLI 命令。）*
 
-#### 方式 B：npx skills 自动安装（需要node.js环境，推荐）
-通过通用安装器，自动识别并分发至系统已支持的客户端：
+*（若使用兼容 Claude Code 插件规范的其它agent客户端，可在其对应的插件管理工具中添加本仓库或替换为相应 CLI 命令。）*
+
+#### 方式 B：npx skills 安装（需要node.js环境）
+
+通过[**vercel-labs/skills**](https://github.com/vercel-labs/skills)通用安装器，自动识别并分发至系统已支持的客户端，其支持范围广泛，推荐使用：
+
 ```bash
-npx skills add "https://github.com/kearril/RimSearcher#master" --skill rimsearcher --global
+npx skills add "https://github.com/kearril/RimSearcher" --skill rimsearcher --global
 ```
 
 #### 方式 C：Release 手动解压
+
 从 [Releases](https://github.com/kearril/RimSearcher/releases) 下载 **`rimsearcher.zip`**，解压后将 `rimsearcher/` 文件夹放入目标客户端的全局技能目录。
 
 ---
 
-### 2.3 Skill 包结构
+### 2.3 项目初始化
+
+全局安装完成后，在任意 RimWorld 模组工程对话中直接发送：
+
+```text
+请调用 rimsearcher 初始化当前项目。
+```
+
+Agent 会自动按需建立本地环境并完成数据与工具隔离，随后即可直接展开分析。
+
+---
+
+### 2.4 Skill 包结构
 
 分发的 Skill 包采用自包含设计，资源均收敛于单一目录（无需像过去那样进行繁琐的配置步骤，你的agent会代理一切）：
 
@@ -91,18 +110,6 @@ rimsearcher/
 
 ---
 
-### 2.4 项目初始化
-
-全局安装完成后，在任意 RimWorld 模组工程对话中直接发送：
-
-```text
-请调用 rimsearcher 初始化当前项目。
-```
-
-Agent 会自动按需建立本地环境并完成数据与工具隔离，随后即可直接展开分析。
-
----
-
 ## 3. 构建
 
 ### 前置要求
@@ -114,13 +121,14 @@ Agent 会自动按需建立本地环境并完成数据与工具隔离，随后�
 ```powershell
 pwsh scripts/build-skill.ps1
 ```
+
 ---
 
 ## 4. 贡献与拓展
 
 欢迎提交 PR 扩充 `skills`，一同构建更具领域智慧的 AI 工具规范。
----
 
+---
 ## 5. 致谢
 
 - [DecompilerServer](https://github.com/pardeike/DecompilerServer) — 强大的 .NET 源码反编译 MCP 服务，为 AI 赋予了直接洞察底层运行代码的能力。
