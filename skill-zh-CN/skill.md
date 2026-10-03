@@ -1,6 +1,6 @@
 ---
 name: rimsearcher
-description: RimWorld 模组开发辅助：Def 运行时数据检索、C# 源码反编译调查、Harmony 补丁定位、API 迁移与机制研究。使用 rimsearcher 查询 Def 事实，结合 DecompilerServer 获取真实源码证据。
+description: "RimWorld 模组开发辅助：Def 运行时数据检索、C# 源码反编译调查、Harmony 补丁定位、API 迁移与机制研究。使用 rimsearcher 查询 Def 事实，结合 DecompilerServer 获取真实源码证据。"
 ---
 
 ## 1. 项目入口

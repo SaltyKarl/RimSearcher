@@ -1,6 +1,6 @@
 ---
 name: rimsearcher
-description: RimWorld mod development: runtime Def data queries, C# decompilation and source investigation, Harmony patching, API migration, and mechanic research. Uses rimsearcher for Def truth and DecompilerServer for decompiled source evidence.
+description: "RimWorld mod development: runtime Def data queries, C# decompilation and source investigation, Harmony patching, API migration, and mechanic research. Uses rimsearcher for Def truth and DecompilerServer for decompiled source evidence."
 ---
 
 ## 1. Project Entry
