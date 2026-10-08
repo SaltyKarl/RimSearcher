@@ -3,7 +3,7 @@
 Publish/
 bin/
 obj/
-
+RimSearcher_DataMod/defs.db
 !/skills/rimsearcher/bin/
 /skills/rimsearcher/bin/*
 !/skills/rimsearcher/bin/rimsearcher.exe
